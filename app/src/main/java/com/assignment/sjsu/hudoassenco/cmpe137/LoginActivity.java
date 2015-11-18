@@ -2,9 +2,14 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,10 +23,17 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText _emailText;
+    private EditText _nameText;
     private EditText _passwordText;
+
+    private TextInputLayout _nameLayout;
+
     private Button _loginButton;
     private TextView _signUpLabel;
     //Facebook stuff
@@ -31,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog _progressDialog;
 
     private UserLoginTask _authTask;
+
+    private boolean _singUpFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +57,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         _emailText = (EditText) findViewById(R.id.login_email_input);
+        _nameText = (EditText) findViewById(R.id.login_name_input);
+        _nameLayout = (TextInputLayout) findViewById(R.id.login_name_layout);
         _passwordText = (EditText) findViewById(R.id.login_passwd_input);
         _loginButton = (Button) findViewById(R.id.login_btn);
         _signUpLabel = (TextView) findViewById(R.id.login_signup_label);
@@ -60,10 +76,35 @@ public class LoginActivity extends AppCompatActivity {
         _signUpLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Call sign up activity here!
+                _singUpFlag = !_singUpFlag;
+                if(_singUpFlag) {
+                    _signUpLabel.setText(R.string.signup_link_label);
+                    _loginButton.setText(R.string.sign_up_label);
+                    _nameLayout.setVisibility(View.VISIBLE);
+                } else {
+                    _signUpLabel.setText(R.string.signin_link_label);
+                    _loginButton.setText(R.string.login_label);
+                    _nameLayout.setVisibility(View.GONE);
+                }
             }
         });
 
+//        Use this the first time to get your KeyHash for your device.
+//        source: http://stackoverflow.com/a/23863110
+//        try {
+//            PackageInfo info = getPackageManager().getPackageInfo(
+//                    "com.example.packagename",
+//                    PackageManager.GET_SIGNATURES);
+//            for (Signature signature : info.signatures) {
+//                MessageDigest md = MessageDigest.getInstance("SHA");
+//                md.update(signature.toByteArray());
+//                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//            }
+//        } catch (PackageManager.NameNotFoundException e) {
+//
+//        } catch (NoSuchAlgorithmException e) {
+//
+//        }
         //Facebook stuff initialization
         _facebookButton = (LoginButton) findViewById(R.id.login_facebook_btn);
         _facebookCallbackMgr = CallbackManager.Factory.create();
@@ -93,6 +134,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        _facebookCallbackMgr.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void attemptLogin() {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
@@ -103,14 +150,18 @@ public class LoginActivity extends AppCompatActivity {
         View focusView = null;
         boolean cancel = false;
 
-        if(!isPasswordValid(password)) {
-            _passwordText.setError(getString(R.string.error_invalid_password));
+        Utils.ValidationResult validationResult;
+
+        validationResult = Utils.isPasswordValid(password);
+        if(!validationResult.valid) {
+            _passwordText.setError(getString(validationResult.messageRes));
             focusView = _passwordText;
             cancel = true;
         }
 
-        if(!isEmailValid(email)) {
-            _emailText.setError(getString(R.string.error_invalid_email));
+        validationResult = Utils.isEmailValid(email);
+        if(!validationResult.valid) {
+            _emailText.setError(getString(validationResult.messageRes));
             focusView = _emailText;
             cancel = true;
         }
@@ -125,16 +176,6 @@ public class LoginActivity extends AppCompatActivity {
             _authTask.execute();
         }
 
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Proper password validation logic.
-        return !password.isEmpty();
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Proper email validation logic.
-        return !email.isEmpty();
     }
 
     /**
