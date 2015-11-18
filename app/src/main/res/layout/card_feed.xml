@@ -35,7 +35,7 @@
                     android:clickable="true"
                     android:text="Vacations in California 2015"
                     android:textSize="16sp"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/link"
                     />
 
                 <TextView
@@ -58,7 +58,7 @@
                     android:layout_below="@id/feed_album_name"
                     android:clickable="true"
                     android:text="Jhon"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/link"
                     android:textSize="14sp"
                     />
 
@@ -83,7 +83,7 @@
                     android:clickable="true"
                     android:text="Lake Tahoe"
                     android:textSize="14sp"
-                    android:textColor="@color/blue"
+                    android:textColor="@color/link"
                     />
 
             </RelativeLayout>

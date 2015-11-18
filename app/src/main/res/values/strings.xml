@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">AppName</string>
+    <string name="log_tag">CMPE137</string>
+    
+    <string name="facebook_app_id">104512003249778</string>
+    
     <string name="action_settings">Settings</string>
 
+    <!--Login-->
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="login_label">Login</string>
     <string name="lb_register">Not a member? Register here.</string>
-
-    <string name="login_progress">Authenticating...</string>
+    <string name="login_progress">Authenticating…</string>
 
     <!--Errors-->
     <string name="error_invalid_password">Invalid password.</string>

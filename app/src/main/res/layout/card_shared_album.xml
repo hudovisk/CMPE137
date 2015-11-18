@@ -62,7 +62,7 @@
                 android:paddingBottom="20dp"
                 android:text="Jhon"
                 android:textSize="14sp"
-                android:textColor="@color/blue"/>
+                android:textColor="@color/link"/>
 
             <TextView
                 android:id="@+id/album_number_contributors"
