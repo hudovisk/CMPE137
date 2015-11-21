@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -116,8 +117,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 //TODO: Get all user information (Back-end guy)
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                openMainActivity();
             }
 
             @Override
@@ -140,9 +140,31 @@ public class LoginActivity extends AppCompatActivity {
         _facebookCallbackMgr.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(isLoggedInFacebook()) {
+            //TODO: Get all user information (Back-end guy)
+            openMainActivity();
+        }
+    }
+
+    private boolean isLoggedInFacebook() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
+    }
+
+    private void openMainActivity() {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void attemptLogin() {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
+        String name = _nameText.getText().toString();
 
         _emailText.setError(null);
         _passwordText.setError(null);
@@ -166,13 +188,22 @@ public class LoginActivity extends AppCompatActivity {
             cancel = true;
         }
 
+        if(_singUpFlag) {
+            validationResult = Utils.isNameValid(name);
+            if(!validationResult.valid) {
+                _nameText.setError(getString(validationResult.messageRes));
+                focusView = _nameText;
+                cancel = true;
+            }
+        }
+
         if(cancel) {
             if (focusView != null) {
                 focusView.requestFocus();
             }
         } else {
             _progressDialog.show();
-            _authTask = new UserLoginTask(email, password);
+            _authTask = new UserLoginTask(email, name, password);
             _authTask.execute();
         }
 
@@ -185,16 +216,22 @@ public class LoginActivity extends AppCompatActivity {
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String _email;
+        private final String _name;
         private final String _password;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String name, String password) {
             _email = email;
+            _name = name;
             _password = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+            if(_singUpFlag) {
+                //TODO: Sign up back end
+            } else {
+                //TODO: attempt authentication against a network service.
+            }
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -211,8 +248,7 @@ public class LoginActivity extends AppCompatActivity {
             _progressDialog.dismiss();
 
             if (success) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                openMainActivity();
             } else {
                 _passwordText.setError(getString(R.string.error_incorrect_password));
                 _passwordText.requestFocus();

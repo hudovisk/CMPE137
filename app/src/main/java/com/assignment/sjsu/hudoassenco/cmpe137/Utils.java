@@ -1,5 +1,8 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+
 /**
  * Created by hudoassenco on 11/17/15.
  */

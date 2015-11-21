@@ -23,5 +23,9 @@
     <string name="error_incorrect_password">Incorrect password</string>
     <string name="error_invalid_email">Invalid email.</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="new_album">New Album</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Search photos and albuns</string>
+    <string name="title_activity_searchable">SearchableActivity</string>
 
 </resources>
