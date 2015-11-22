@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.appevents.AppEventsLogger;
+import com.parse.Parse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this, "ZJwjmK7r9gPksXGBLJrKaMqYyukE3bynlAwC14OE", "utgkyU8HhbgxABHmvvntC3IgnBOqHhB7HyokBKUH");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
