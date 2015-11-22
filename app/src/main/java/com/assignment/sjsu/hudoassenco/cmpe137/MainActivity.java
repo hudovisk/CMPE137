@@ -38,15 +38,19 @@ public class MainActivity extends AppCompatActivity {
 
         _tabLayout = (TabLayout) findViewById(R.id.tabs);
         _tabLayout.setupWithViewPager(_viewPager);
+        _tabLayout.getTabAt(0).setIcon(R.drawable.ic_view_headline_black_24dp);
+        _tabLayout.getTabAt(1).setIcon(R.drawable.ic_share_black_24dp);
+        _tabLayout.getTabAt(2).setIcon(R.drawable.ic_photo_library_black_24dp);
+        _tabLayout.getTabAt(3).setIcon(R.drawable.ic_account_box_black_24dp);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
     }
 
     @Override
@@ -88,9 +92,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new NewsFeedFragment(), "News");
-        adapter.addFragment(new SharedAlbunsFragment(), "Shared");
-        adapter.addFragment(new SharedAlbunsFragment(), "Owned");
+        adapter.addFragment(new NewsFeedFragment(), "");
+        adapter.addFragment(new SharedAlbunsFragment(), "");
+        adapter.addFragment(new OwnedAlbunsFragment(), "");
+        adapter.addFragment(new ProfileFragment(), "");
         viewPager.setAdapter(adapter);
     }
 

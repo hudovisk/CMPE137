@@ -111,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         _facebookCallbackMgr = CallbackManager.Factory.create();
 
         //TODO: Check other possible permissions.
-        _facebookButton.setReadPermissions("user_friends");
+        _facebookButton.setReadPermissions("user_friends", "user_photos");
 
         _facebookButton.registerCallback(_facebookCallbackMgr, new FacebookCallback<LoginResult>() {
             @Override

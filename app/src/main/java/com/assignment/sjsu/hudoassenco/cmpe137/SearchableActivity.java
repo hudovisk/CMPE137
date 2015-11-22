@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,6 +18,9 @@ import android.view.inputmethod.InputMethodManager;
 public class SearchableActivity extends AppCompatActivity {
 
     private SearchView _searchView;
+    private RecyclerView _resultsView;
+    private RecyclerView.LayoutManager _layoutManager;
+    private RecyclerView.Adapter _adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +29,14 @@ public class SearchableActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        _resultsView = (RecyclerView) findViewById(R.id.result_view);
+        _layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        _adapter = new SearchResultAdapter();
+
+        _resultsView.setLayoutManager(_layoutManager);
+        _resultsView.setAdapter(_adapter);
 
         Intent intent = getIntent();
         handleIntent(intent);
