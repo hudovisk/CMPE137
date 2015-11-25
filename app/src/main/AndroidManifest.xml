@@ -6,6 +6,7 @@
     
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
+        android:name="com.assignment.sjsu.hudoassenco.cmpe137.ParseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -48,6 +49,16 @@
             </intent-filter>
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".NewAlbumActivity"
+            android:label="@string/title_activity_NewAlbum"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -28,21 +28,6 @@ public class OwnedAlbunsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        GraphRequest request = GraphRequest.newMeRequest(
-                accessToken,
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.d("CMPE137",response.getRawResponse());
-                    }
-                });
-
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "photos{images}");
-        request.setParameters(parameters);
-        request.executeAsync();
     }
 
     @Override

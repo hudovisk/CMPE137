@@ -1,5 +1,6 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -52,6 +53,9 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 LoginManager.getInstance().logOut();
+                Intent intent = new Intent(getContext(), LoginActivity.class);
+                startActivity(intent);
+                getActivity().finish();
             }
         });
 

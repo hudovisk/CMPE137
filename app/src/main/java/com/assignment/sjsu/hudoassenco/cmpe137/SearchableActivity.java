@@ -30,7 +30,7 @@ public class SearchableActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        getSupportActionBar().setTitle("");
         _resultsView = (RecyclerView) findViewById(R.id.result_view);
         _layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         _adapter = new SearchResultAdapter();
