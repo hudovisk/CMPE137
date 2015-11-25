@@ -14,15 +14,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.appevents.AppEventsLogger;
-import com.parse.Parse;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager _viewPager;
-    private TabLayout _tabLayout;
+    private ViewPager mViewPager;
+    private TabLayout mTabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +31,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        _viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(_viewPager);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(mViewPager);
 
-        _tabLayout = (TabLayout) findViewById(R.id.tabs);
-        _tabLayout.setupWithViewPager(_viewPager);
-        _tabLayout.getTabAt(0).setIcon(R.drawable.ic_view_headline_black_24dp);
-        _tabLayout.getTabAt(1).setIcon(R.drawable.ic_share_black_24dp);
-        _tabLayout.getTabAt(2).setIcon(R.drawable.ic_photo_library_black_24dp);
-        _tabLayout.getTabAt(3).setIcon(R.drawable.ic_account_box_black_24dp);
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.ic_view_headline_black_24dp);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.ic_share_black_24dp);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.ic_photo_library_black_24dp);
+        mTabLayout.getTabAt(3).setIcon(R.drawable.ic_account_box_black_24dp);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.mId.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -99,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new NewsFeedFragment(), "");
-        adapter.addFragment(new SharedAlbunsFragment(), "");
-        adapter.addFragment(new OwnedAlbunsFragment(), "");
+        adapter.addFragment(new SharedAlbumsFragment(), "");
+        adapter.addFragment(new OwnedAlbumsFragment(), "");
         adapter.addFragment(new ProfileFragment(), "");
         viewPager.setAdapter(adapter);
     }

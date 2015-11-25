@@ -3,7 +3,6 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,14 +25,11 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 
-/**
- * Created by hudoassenco on 11/21/15.
- */
 public class ProfileFragment extends Fragment {
 
-    private ImageView _profilePictureView;
-    private TextView _profileNameView;
-    private Button _logoutButton;
+    private ImageView mProfilePictureView;
+    private TextView mProfileNameView;
+    private Button mLogoutButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,11 +41,11 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        _profilePictureView = (ImageView) rootView.findViewById(R.id.profile_picture);
-        _profileNameView = (TextView) rootView.findViewById(R.id.profile_name);
+        mProfilePictureView = (ImageView) rootView.findViewById(R.id.profile_picture);
+        mProfileNameView = (TextView) rootView.findViewById(R.id.profile_name);
 
-        _logoutButton = (Button) rootView.findViewById(R.id.profile_logout_bt);
-        _logoutButton.setOnClickListener(new View.OnClickListener() {
+        mLogoutButton = (Button) rootView.findViewById(R.id.profile_logout_bt);
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LoginManager.getInstance().logOut();
@@ -68,11 +64,11 @@ public class ProfileFragment extends Fragment {
                         JSONObject result = response.getJSONObject();
                         try {
                             String name = result.getString("name");
-                            _profileNameView.setText(name);
+                            mProfileNameView.setText(name);
 
                             JSONObject picture = result.getJSONObject("picture").getJSONObject("data");
                             String urlPicture = picture.getString("url");
-                            DownloadImageTask task = new DownloadImageTask(_profilePictureView);
+                            DownloadImageTask task = new DownloadImageTask(mProfilePictureView);
                             task.execute(urlPicture);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -89,10 +85,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView _imageView;
+        ImageView mImageView;
 
         public DownloadImageTask(ImageView imageView) {
-            this._imageView = imageView;
+            this.mImageView = imageView;
         }
 
         protected Bitmap doInBackground(String... urls) {
@@ -110,7 +106,7 @@ public class ProfileFragment extends Fragment {
         }
 
         protected void onPostExecute(Bitmap result) {
-            this._imageView.setImageBitmap(result);
+            this.mImageView.setImageBitmap(result);
         }
     }
 }

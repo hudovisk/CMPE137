@@ -1,20 +1,14 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-
-/**
- * Created by hudoassenco on 11/17/15.
- */
 public class Utils {
 
     public static class ValidationResult {
-        public boolean valid;
-        public int messageRes;
+        public boolean mValid;
+        public int mMessageRes;
 
         public ValidationResult(boolean valid, int messageRes) {
-            this.valid = valid;
-            this.messageRes = messageRes;
+            mValid = valid;
+            mMessageRes = messageRes;
         }
     }
 
@@ -37,7 +31,7 @@ public class Utils {
     }
 
     public static ValidationResult isNameValid(String name) {
-        //TODO: Proper name validation logic.
+        //TODO: Proper mName validation logic.
         if(name.isEmpty()) {
             return new ValidationResult(false, R.string.error_invalid_password);
         } else {

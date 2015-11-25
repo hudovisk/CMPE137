@@ -13,14 +13,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.ViewGroup;
 
 public class SearchableActivity extends AppCompatActivity {
 
-    private SearchView _searchView;
-    private RecyclerView _resultsView;
-    private RecyclerView.LayoutManager _layoutManager;
-    private RecyclerView.Adapter _adapter;
+    private SearchView mSearchView;
+    private RecyclerView mResultsView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.Adapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +31,12 @@ public class SearchableActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
-        _resultsView = (RecyclerView) findViewById(R.id.result_view);
-        _layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        _adapter = new SearchResultAdapter();
+        mResultsView = (RecyclerView) findViewById(R.id.result_view);
+        mLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        mAdapter = new SearchResultAdapter();
 
-        _resultsView.setLayoutManager(_layoutManager);
-        _resultsView.setAdapter(_adapter);
+        mResultsView.setLayoutManager(mLayoutManager);
+        mResultsView.setAdapter(mAdapter);
 
         Intent intent = getIntent();
         handleIntent(intent);
@@ -49,10 +49,10 @@ public class SearchableActivity extends AppCompatActivity {
 
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        _searchView = (SearchView) menu.findItem(R.id.search_action_search_view).getActionView();
+        mSearchView = (SearchView) menu.findItem(R.id.search_action_search_view).getActionView();
         // Assumes current activity is the searchable activity
-        _searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        _searchView.setIconifiedByDefault(false);
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setIconifiedByDefault(false);
 
         // TODO: Bug with searchView and request focus. Keyboard not showing up.
 
@@ -72,5 +72,31 @@ public class SearchableActivity extends AppCompatActivity {
             Log.d("CMPE137", "Query: " + query);
             //TODO: Search
         }
+    }
+
+    private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> {
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return null;
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return 0;
+        }
+
     }
 }

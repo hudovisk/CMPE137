@@ -4,9 +4,6 @@ import android.app.Application;
 
 import com.parse.Parse;
 
-/**
- * Created by hudoassenco on 11/24/15.
- */
 public class ParseApplication extends Application {
 
     //See: http://stackoverflow.com/q/30135858

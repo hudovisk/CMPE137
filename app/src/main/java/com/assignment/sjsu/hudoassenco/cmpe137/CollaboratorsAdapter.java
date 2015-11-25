@@ -1,25 +1,29 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by hudoassenco on 11/24/15.
- */
-public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdapter.ViewHolder> {
+public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<CollaboratorsAdapter.ViewHolder> {
 
-    private ArrayList<Collaborator> _collaborators;
+    private ArrayList<Collaborator> mCollaborators;
+    private BitmapDownloader<ViewHolder> mBitmapDownloader;
 
-    public CollaboratorsAdapter(ArrayList<Collaborator> _collaborators) {
-        this._collaborators = _collaborators;
+    public CollaboratorsAdapter(ArrayList<Collaborator> collaborators) {
+        mCollaborators = collaborators;
+
+        mBitmapDownloader = new BitmapDownloader<>(new Handler());
+        mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+        mBitmapDownloader.start();
+        mBitmapDownloader.getLooper();
     }
 
     @Override
@@ -34,50 +38,56 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Collaborator collaborator = _collaborators.get(position);
+        Collaborator collaborator = mCollaborators.get(position);
 
-        holder.name.setText(collaborator.name);
+        holder.mName.setText(collaborator.mName);
+        mBitmapDownloader.queueUrl(holder, collaborator.mPictureUrl);
     }
 
     @Override
     public int getItemCount() {
-        return _collaborators.size();
+        return mCollaborators.size();
+    }
+
+    @Override
+    public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
+        holder.mPicture.setImageBitmap(image);
     }
 
     public static class Collaborator {
-        public String name;
-        public String pictureUrl;
-        public String id;
+        public String mName;
+        public String mPictureUrl;
+        public String mId;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public ImageView picture;
-        public TextView name;
-        public ImageButton removeButton;
+        public ImageView mPicture;
+        public TextView mName;
+        public ImageButton mRemoveButton;
 
         public ViewHolder(View view) {
             super(view);
 
-            picture = (ImageView) view.findViewById(R.id.collaborator_item_picture);
-            name = (TextView) view.findViewById(R.id.collaborator_item_name);
-            removeButton = (ImageButton) view.findViewById(R.id.collaborator_item_remove_bt);
+            mPicture = (ImageView) view.findViewById(R.id.collaborator_item_picture);
+            mName = (TextView) view.findViewById(R.id.collaborator_item_name);
+            mRemoveButton = (ImageButton) view.findViewById(R.id.collaborator_item_remove_bt);
 
-            removeButton.setOnClickListener(this);
+            mRemoveButton.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            if(v.equals(removeButton)){
+            if (v.equals(mRemoveButton)) {
                 removeAt(getAdapterPosition());
             }
         }
     }
 
     public void removeAt(int position) {
-        _collaborators.remove(position);
+        mCollaborators.remove(position);
         notifyItemRemoved(position);
-        notifyItemRangeChanged(position, _collaborators.size());
+        notifyItemRangeChanged(position, mCollaborators.size());
     }
 
 }

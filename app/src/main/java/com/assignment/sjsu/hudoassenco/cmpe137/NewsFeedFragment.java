@@ -8,15 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
-/**
- * A simple {@link android.app.Fragment} subclass.
- */
 public class NewsFeedFragment extends Fragment {
 
-    private RecyclerView _newsFeedView;
-    private RecyclerView.LayoutManager _layoutManager;
-    private RecyclerView.Adapter _adapter;
+    private RecyclerView mNewsFeedView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.Adapter mLadapter;
 
     public NewsFeedFragment() {
 
@@ -26,14 +22,44 @@ public class NewsFeedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_news_feed, container, false);
 
-        _newsFeedView = (RecyclerView) rootView.findViewById(R.id.newsFeedView);
-        _layoutManager = new LinearLayoutManager(getContext());
-        _adapter = new NewsFeedAdapter();
+        mNewsFeedView = (RecyclerView) rootView.findViewById(R.id.newsFeedView);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mLadapter = new NewsFeedAdapter();
 
-        _newsFeedView.setHasFixedSize(true);
-        _newsFeedView.setLayoutManager(_layoutManager);
-        _newsFeedView.setAdapter(_adapter);
+        mNewsFeedView.setHasFixedSize(true);
+        mNewsFeedView.setLayoutManager(mLayoutManager);
+        mNewsFeedView.setAdapter(mLadapter);
 
         return rootView;
+    }
+
+    private class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHolder> {
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+            }
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.card_feed, parent, false);
+
+            ViewHolder viewHolder = new ViewHolder(view);
+            return viewHolder;
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return 10;
+        }
+
     }
 }

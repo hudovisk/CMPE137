@@ -2,14 +2,10 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,28 +20,25 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText _emailText;
-    private EditText _nameText;
-    private EditText _passwordText;
+    private EditText mEmailText;
+    private EditText mNameText;
+    private EditText mPasswordText;
 
-    private TextInputLayout _nameLayout;
+    private TextInputLayout mNameLayout;
 
-    private Button _loginButton;
-    private TextView _signUpLabel;
+    private Button mLoginButton;
+    private TextView mSignUpLabel;
     //Facebook stuff
-    private LoginButton _facebookButton;
-    private CallbackManager _facebookCallbackMgr;
+    private LoginButton mFacebookButton;
+    private CallbackManager mFacebookCallbackMgr;
 
-    private ProgressDialog _progressDialog;
+    private ProgressDialog mProgressDialog;
 
-    private UserLoginTask _authTask;
+    private UserLoginTask mAuthTask;
 
-    private boolean _singUpFlag = false;
+    private boolean mSingUpFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,35 +50,35 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        _emailText = (EditText) findViewById(R.id.login_email_input);
-        _nameText = (EditText) findViewById(R.id.login_name_input);
-        _nameLayout = (TextInputLayout) findViewById(R.id.login_name_layout);
-        _passwordText = (EditText) findViewById(R.id.login_passwd_input);
-        _loginButton = (Button) findViewById(R.id.login_btn);
-        _signUpLabel = (TextView) findViewById(R.id.login_signup_label);
+        mEmailText = (EditText) findViewById(R.id.login_email_input);
+        mNameText = (EditText) findViewById(R.id.login_name_input);
+        mNameLayout = (TextInputLayout) findViewById(R.id.login_name_layout);
+        mPasswordText = (EditText) findViewById(R.id.login_passwd_input);
+        mLoginButton = (Button) findViewById(R.id.login_btn);
+        mSignUpLabel = (TextView) findViewById(R.id.login_signup_label);
 
-        _progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dialog);
-        _progressDialog.setIndeterminate(true);
-        _progressDialog.setMessage(getString(R.string.login_progress));
+        mProgressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dialog);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setMessage(getString(R.string.login_progress));
 
-        _loginButton.setOnClickListener(new View.OnClickListener() {
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 attemptLogin();
             }
         });
-        _signUpLabel.setOnClickListener(new View.OnClickListener() {
+        mSignUpLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                _singUpFlag = !_singUpFlag;
-                if(_singUpFlag) {
-                    _signUpLabel.setText(R.string.signup_link_label);
-                    _loginButton.setText(R.string.sign_up_label);
-                    _nameLayout.setVisibility(View.VISIBLE);
+                mSingUpFlag = !mSingUpFlag;
+                if (mSingUpFlag) {
+                    mSignUpLabel.setText(R.string.signup_link_label);
+                    mLoginButton.setText(R.string.sign_up_label);
+                    mNameLayout.setVisibility(View.VISIBLE);
                 } else {
-                    _signUpLabel.setText(R.string.signin_link_label);
-                    _loginButton.setText(R.string.login_label);
-                    _nameLayout.setVisibility(View.GONE);
+                    mSignUpLabel.setText(R.string.signin_link_label);
+                    mLoginButton.setText(R.string.login_label);
+                    mNameLayout.setVisibility(View.GONE);
                 }
             }
         });
@@ -107,13 +100,13 @@ public class LoginActivity extends AppCompatActivity {
 //
 //        }
         //Facebook stuff initialization
-        _facebookButton = (LoginButton) findViewById(R.id.login_facebook_btn);
-        _facebookCallbackMgr = CallbackManager.Factory.create();
+        mFacebookButton = (LoginButton) findViewById(R.id.login_facebook_btn);
+        mFacebookCallbackMgr = CallbackManager.Factory.create();
 
         //TODO: Check other possible permissions.
-        _facebookButton.setReadPermissions("user_friends", "user_photos");
+        mFacebookButton.setReadPermissions("user_friends", "user_photos");
 
-        _facebookButton.registerCallback(_facebookCallbackMgr, new FacebookCallback<LoginResult>() {
+        mFacebookButton.registerCallback(mFacebookCallbackMgr, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 //TODO: Get all user information (Back-end guy)
@@ -137,7 +130,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        _facebookCallbackMgr.onActivityResult(requestCode, resultCode, data);
+        mFacebookCallbackMgr.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -162,12 +155,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void attemptLogin() {
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        String name = _nameText.getText().toString();
+        String email = mEmailText.getText().toString();
+        String password = mPasswordText.getText().toString();
+        String name = mNameText.getText().toString();
 
-        _emailText.setError(null);
-        _passwordText.setError(null);
+        mEmailText.setError(null);
+        mPasswordText.setError(null);
 
         View focusView = null;
         boolean cancel = false;
@@ -175,24 +168,24 @@ public class LoginActivity extends AppCompatActivity {
         Utils.ValidationResult validationResult;
 
         validationResult = Utils.isPasswordValid(password);
-        if(!validationResult.valid) {
-            _passwordText.setError(getString(validationResult.messageRes));
-            focusView = _passwordText;
+        if(!validationResult.mValid) {
+            mPasswordText.setError(getString(validationResult.mMessageRes));
+            focusView = mPasswordText;
             cancel = true;
         }
 
         validationResult = Utils.isEmailValid(email);
-        if(!validationResult.valid) {
-            _emailText.setError(getString(validationResult.messageRes));
-            focusView = _emailText;
+        if(!validationResult.mValid) {
+            mEmailText.setError(getString(validationResult.mMessageRes));
+            focusView = mEmailText;
             cancel = true;
         }
 
-        if(_singUpFlag) {
+        if(mSingUpFlag) {
             validationResult = Utils.isNameValid(name);
-            if(!validationResult.valid) {
-                _nameText.setError(getString(validationResult.messageRes));
-                focusView = _nameText;
+            if(!validationResult.mValid) {
+                mNameText.setError(getString(validationResult.mMessageRes));
+                focusView = mNameText;
                 cancel = true;
             }
         }
@@ -202,9 +195,9 @@ public class LoginActivity extends AppCompatActivity {
                 focusView.requestFocus();
             }
         } else {
-            _progressDialog.show();
-            _authTask = new UserLoginTask(email, name, password);
-            _authTask.execute();
+            mProgressDialog.show();
+            mAuthTask = new UserLoginTask(email, name, password);
+            mAuthTask.execute();
         }
 
     }
@@ -215,19 +208,19 @@ public class LoginActivity extends AppCompatActivity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String _email;
-        private final String _name;
-        private final String _password;
+        private final String mEmail;
+        private final String mName;
+        private final String mPassword;
 
         UserLoginTask(String email, String name, String password) {
-            _email = email;
-            _name = name;
-            _password = password;
+            mEmail = email;
+            mName = name;
+            mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if(_singUpFlag) {
+            if(mSingUpFlag) {
                 //TODO: Sign up back end
             } else {
                 //TODO: attempt authentication against a network service.
@@ -244,21 +237,21 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            _authTask = null;
-            _progressDialog.dismiss();
+            mAuthTask = null;
+            mProgressDialog.dismiss();
 
             if (success) {
                 openMainActivity();
             } else {
-                _passwordText.setError(getString(R.string.error_incorrect_password));
-                _passwordText.requestFocus();
+                mPasswordText.setError(getString(R.string.error_incorrect_password));
+                mPasswordText.requestFocus();
             }
         }
 
         @Override
         protected void onCancelled() {
-            _authTask = null;
-            _progressDialog.dismiss();
+            mAuthTask = null;
+            mProgressDialog.dismiss();
         }
     }
 }

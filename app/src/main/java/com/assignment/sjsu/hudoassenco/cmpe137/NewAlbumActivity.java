@@ -1,8 +1,6 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,34 +26,31 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-/**
- * Created by hudoassenco on 11/24/15.
- */
 public class NewAlbumActivity extends AppCompatActivity {
 
-    private EditText _albunNameView;
+    private EditText mAlbumNameView;
 
-    private AutoCompleteTextView _collaboratorView;
+    private AutoCompleteTextView mCollaboratorNameInputView;
 
-    private ImageButton _addCollaboratorButton;
+    private ImageButton mAddCollaboratorButton;
 
-    private RecyclerView _collaboratorsListView;
-    private RecyclerView.LayoutManager _layoutManager;
-    private RecyclerView.Adapter _adapter;
+    private RecyclerView mCollaboratorsListView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private RecyclerView.Adapter mAdapter;
 
-    private ArrayList<String> _friendsSuggestions;
-    private ArrayList<String> _friendsSuggestionsId;
-    private ArrayList<String> _friendsSuggestionsPictureUrl;
-    private ArrayList<CollaboratorsAdapter.Collaborator> _collaborators;
+    private ArrayList<String> mCollaboratorsSuggestions;
+    private ArrayList<String> mCollaboratorsSuggestionsId;
+    private ArrayList<String> mCollaboratorsSuggestionsPictureUrl;
+    private ArrayList<CollaboratorsAdapter.Collaborator> mCollaborators;
 
     public NewAlbumActivity() {
-        _friendsSuggestions = new ArrayList<>();
-        _friendsSuggestionsId = new ArrayList<>();
-        _friendsSuggestionsPictureUrl = new ArrayList<>();
-        _collaborators = new ArrayList<>();
+        mCollaboratorsSuggestions = new ArrayList<>();
+        mCollaboratorsSuggestionsId = new ArrayList<>();
+        mCollaboratorsSuggestionsPictureUrl = new ArrayList<>();
+        mCollaborators = new ArrayList<>();
 
-        _adapter = new CollaboratorsAdapter(_collaborators);
-        _layoutManager = new LinearLayoutManager(NewAlbumActivity.this, LinearLayoutManager.VERTICAL, false);
+        mAdapter = new CollaboratorsAdapter(mCollaborators);
+        mLayoutManager = new LinearLayoutManager(NewAlbumActivity.this, LinearLayoutManager.VERTICAL, false);
     }
 
     @Override
@@ -64,12 +59,12 @@ public class NewAlbumActivity extends AppCompatActivity {
 
         Log.d("CMPE137", "onSaveInstanceState");
 
-        outState.putInt("size",_collaborators.size());
+        outState.putInt("size", mCollaborators.size());
 
-        for(int i=0; i<_collaborators.size(); i++) {
-            outState.putString("name_"+i, _collaborators.get(i).name);
-            outState.putString("id_"+i, _collaborators.get(i).id);
-            outState.putString("pictureUrl_"+i, _collaborators.get(i).pictureUrl);
+        for(int i=0; i< mCollaborators.size(); i++) {
+            outState.putString("name_"+i, mCollaborators.get(i).mName);
+            outState.putString("id_"+i, mCollaborators.get(i).mId);
+            outState.putString("pictureUrl_"+i, mCollaborators.get(i).mPictureUrl);
         }
     }
 
@@ -81,16 +76,16 @@ public class NewAlbumActivity extends AppCompatActivity {
 
         int size = savedInstanceState.getInt("size");
         Log.d("CMPE137", "Size: "+size);
-        _collaborators = new ArrayList<>();
+        mCollaborators = new ArrayList<>();
         for(int i=0; i<size; i++) {
             CollaboratorsAdapter.Collaborator collaborator = new CollaboratorsAdapter.Collaborator();
-            collaborator.name = savedInstanceState.getString("name_"+i);
-            collaborator.id = savedInstanceState.getString("id_"+i);
-            collaborator.pictureUrl = savedInstanceState.getString("pictureUrl_"+i);
-            _collaborators.add(collaborator);
+            collaborator.mName = savedInstanceState.getString("name_"+i);
+            collaborator.mId = savedInstanceState.getString("id_"+i);
+            collaborator.mPictureUrl = savedInstanceState.getString("pictureUrl_"+i);
+            mCollaborators.add(collaborator);
         }
-        _adapter = new CollaboratorsAdapter(_collaborators);
-        _collaboratorsListView.setAdapter(_adapter);
+        mAdapter = new CollaboratorsAdapter(mCollaborators);
+        mCollaboratorsListView.setAdapter(mAdapter);
     }
 
     @Override
@@ -103,38 +98,38 @@ public class NewAlbumActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getString(R.string.new_album));
 
-        _collaboratorView = (AutoCompleteTextView) findViewById(R.id.new_album_collaborator_input);
-        _albunNameView = (EditText) findViewById(R.id.new_album_name_input);
-        _collaboratorsListView = (RecyclerView) findViewById(R.id.new_album_colaborator_list);
-        _addCollaboratorButton = (ImageButton) findViewById(R.id.new_album_add_collaborator_bt);
+        mCollaboratorNameInputView = (AutoCompleteTextView) findViewById(R.id.new_album_collaborator_input);
+        mAlbumNameView = (EditText) findViewById(R.id.new_album_name_input);
+        mCollaboratorsListView = (RecyclerView) findViewById(R.id.new_album_colaborator_list);
+        mAddCollaboratorButton = (ImageButton) findViewById(R.id.new_album_add_collaborator_bt);
 
-        _collaboratorsListView.setLayoutManager(_layoutManager);
-        _collaboratorsListView.setAdapter(_adapter);
+        mCollaboratorsListView.setLayoutManager(mLayoutManager);
+        mCollaboratorsListView.setAdapter(mAdapter);
 
-        _addCollaboratorButton.setOnClickListener(new View.OnClickListener() {
+        mAddCollaboratorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = _collaboratorView.getText().toString();
+                String name = mCollaboratorNameInputView.getText().toString();
                 String id = "";
                 String pictureUrl = "";
 
-                for(int i=0; i<_friendsSuggestions.size(); i++) {
-                    if(_friendsSuggestions.get(i).equals(name)) {
-                        id = _friendsSuggestionsId.get(i);
-                        pictureUrl = _friendsSuggestionsPictureUrl.get(i);
+                for (int i = 0; i < mCollaboratorsSuggestions.size(); i++) {
+                    if (mCollaboratorsSuggestions.get(i).equals(name)) {
+                        id = mCollaboratorsSuggestionsId.get(i);
+                        pictureUrl = mCollaboratorsSuggestionsPictureUrl.get(i);
                     }
                 }
 
-                if(!id.isEmpty()) {
+                if (!id.isEmpty()) {
                     CollaboratorsAdapter.Collaborator collaborator = new CollaboratorsAdapter.Collaborator();
-                    collaborator.name = name;
-                    collaborator.id = id;
-                    collaborator.pictureUrl = pictureUrl;
-                    _collaborators.add(collaborator);
-                    _adapter.notifyItemInserted(_collaborators.size() - 1);
+                    collaborator.mName = name;
+                    collaborator.mId = id;
+                    collaborator.mPictureUrl = pictureUrl;
+                    mCollaborators.add(collaborator);
+                    mAdapter.notifyItemInserted(mCollaborators.size() - 1);
 
-                    _collaboratorView.setText("");
-                    _collaboratorView.requestFocus();
+                    mCollaboratorNameInputView.setText("");
+                    mCollaboratorNameInputView.requestFocus();
                 }
             }
         });
@@ -176,18 +171,18 @@ public class NewAlbumActivity extends AppCompatActivity {
             JSONObject result = response.getJSONObject();
             try {
                 JSONArray data = result.getJSONObject("friends").getJSONArray("data");
-                _friendsSuggestions.clear();
-                _friendsSuggestionsId.clear();
+                mCollaboratorsSuggestions.clear();
+                mCollaboratorsSuggestionsId.clear();
                 for(int i=0; i < data.length(); i++) {
-                    _friendsSuggestions.add(data.getJSONObject(i).getString("name"));
-                    _friendsSuggestionsId.add(data.getJSONObject(i).getString("id"));
-                    _friendsSuggestionsPictureUrl.add(data.getJSONObject(i)
-                                                            .getJSONObject("picture")
-                                                            .getJSONObject("data")
-                                                            .getString("url"));
+                    mCollaboratorsSuggestions.add(data.getJSONObject(i).getString("name"));
+                    mCollaboratorsSuggestionsId.add(data.getJSONObject(i).getString("id"));
+                    mCollaboratorsSuggestionsPictureUrl.add(data.getJSONObject(i)
+                            .getJSONObject("picture")
+                            .getJSONObject("data")
+                            .getString("url"));
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(NewAlbumActivity.this, android.R.layout.simple_list_item_1, _friendsSuggestions);
-                _collaboratorView.setAdapter(adapter);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(NewAlbumActivity.this, android.R.layout.simple_list_item_1, mCollaboratorsSuggestions);
+                mCollaboratorNameInputView.setAdapter(adapter);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
