@@ -36,6 +36,13 @@
                 android:hint="Album Name"
                 android:textSize="22sp"/>
 
+            <EditText
+                android:id="@+id/new_album_description_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Description"
+                android:inputType="textMultiLine"/>
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

@@ -3,6 +3,7 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 import android.app.Application;
 
 import com.parse.Parse;
+import com.parse.ParseFacebookUtils;
 
 public class ParseApplication extends Application {
 
@@ -12,6 +13,7 @@ public class ParseApplication extends Application {
         super.onCreate();
 
         Parse.enableLocalDatastore(this);
-        Parse.initialize(this, "ZJwjmK7r9gPksXGBLJrKaMqYyukE3bynlAwC14OE", "utgkyU8HhbgxABHmvvntC3IgnBOqHhB7HyokBKUH");
+        Parse.initialize(this, "JKF0NbqkkyhUFhelLkqQhjbUMeMeqveLPwfcpbvv", "90ig345UBcaoriqawpM7iYfrnRueWqNlLYYGL70C");
+        ParseFacebookUtils.initialize(this);
     }
 }

@@ -19,6 +19,18 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import bolts.Task;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -30,9 +42,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private Button mLoginButton;
     private TextView mSignUpLabel;
-    //Facebook stuff
-    private LoginButton mFacebookButton;
-    private CallbackManager mFacebookCallbackMgr;
+
+    private Button mLoginWithFacebookButton;
 
     private ProgressDialog mProgressDialog;
 
@@ -56,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordText = (EditText) findViewById(R.id.login_passwd_input);
         mLoginButton = (Button) findViewById(R.id.login_btn);
         mSignUpLabel = (TextView) findViewById(R.id.login_signup_label);
+        mLoginWithFacebookButton = (Button) findViewById(R.id.login_facebook_btn);
 
         mProgressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dialog);
         mProgressDialog.setIndeterminate(true);
@@ -83,6 +95,26 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        mLoginWithFacebookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] permissions = {"user_photos","user_friends"};
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this,
+                        Arrays.asList(permissions), new LogInCallback() {
+                            @Override
+                            public void done(ParseUser user, ParseException e) {
+                                if (user == null) {
+                                    Log.d("CMPE137", "User cancelled login");
+                                } else if(user.isNew()) {
+
+                                } else {
+                                    openMainActivity();
+                                }
+                            }
+                        });
+            }
+        });
+
 //        Use this the first time to get your KeyHash for your device.
 //        source: http://stackoverflow.com/a/23863110
 //        try {
@@ -99,38 +131,13 @@ public class LoginActivity extends AppCompatActivity {
 //        } catch (NoSuchAlgorithmException e) {
 //
 //        }
-        //Facebook stuff initialization
-        mFacebookButton = (LoginButton) findViewById(R.id.login_facebook_btn);
-        mFacebookCallbackMgr = CallbackManager.Factory.create();
-
-        //TODO: Check other possible permissions.
-        mFacebookButton.setReadPermissions("user_friends", "user_photos");
-
-        mFacebookButton.registerCallback(mFacebookCallbackMgr, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                //TODO: Get all user information (Back-end guy)
-                openMainActivity();
-            }
-
-            @Override
-            public void onCancel() {
-                // App code
-            }
-
-            @Override
-            public void onError(FacebookException exception) {
-                Log.e(getString(R.string.log_tag), exception.toString());
-                exception.printStackTrace();
-            }
-        });
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mFacebookCallbackMgr.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -220,19 +227,27 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if(mSingUpFlag) {
-                //TODO: Sign up back end
-            } else {
-                //TODO: attempt authentication against a network service.
-            }
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+                if(mSingUpFlag) {
+                    ParseUser user = new ParseUser();
+                    user.setEmail(mEmail);
+                    user.setUsername(mEmail);
+                    user.setPassword(mPassword);
+                    user.put("name", mName);
+                    user.signUp();
+
+                    return true;
+                } else {
+                    ParseUser user = ParseUser.logIn(mEmail, mPassword);
+                    if(user != null) {
+                        return true;
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
 
-            return true;
+            return false;
         }
 
         @Override

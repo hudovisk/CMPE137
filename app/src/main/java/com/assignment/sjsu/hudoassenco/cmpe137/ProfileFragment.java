@@ -19,6 +19,8 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,38 +50,43 @@ public class ProfileFragment extends Fragment {
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoginManager.getInstance().logOut();
+                ParseUser.logOut();
                 Intent intent = new Intent(getContext(), LoginActivity.class);
                 startActivity(intent);
                 getActivity().finish();
             }
         });
 
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        GraphRequest request = GraphRequest.newMeRequest(
-                accessToken,
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        JSONObject result = response.getJSONObject();
-                        try {
-                            String name = result.getString("name");
-                            mProfileNameView.setText(name);
+        ParseUser user = ParseUser.getCurrentUser();
+        mProfileNameView.setText(user.getString("name"));
 
-                            JSONObject picture = result.getJSONObject("picture").getJSONObject("data");
-                            String urlPicture = picture.getString("url");
-                            DownloadImageTask task = new DownloadImageTask(mProfilePictureView);
-                            task.execute(urlPicture);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+        if(ParseFacebookUtils.isLinked(user)) {
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
+            GraphRequest request = GraphRequest.newMeRequest(
+                    accessToken,
+                    new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(JSONObject object, GraphResponse response) {
+                            JSONObject result = response.getJSONObject();
+                            try {
+                                String name = result.getString("name");
+                                mProfileNameView.setText(name);
+
+                                JSONObject picture = result.getJSONObject("picture").getJSONObject("data");
+                                String urlPicture = picture.getString("url");
+                                DownloadImageTask task = new DownloadImageTask(mProfilePictureView);
+                                task.execute(urlPicture);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                });
+                    });
 
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "name,picture");
-        request.setParameters(parameters);
-        request.executeAsync();
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "name,picture");
+            request.setParameters(parameters);
+            request.executeAsync();
+        }
 
         return rootView;
     }
