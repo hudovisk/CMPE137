@@ -1,5 +1,6 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -15,10 +16,13 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +33,7 @@ import java.util.ArrayList;
 public class NewAlbumActivity extends AppCompatActivity {
 
     private EditText mAlbumNameView;
+    private EditText mAlbumDescription;
 
     private AutoCompleteTextView mCollaboratorNameInputView;
 
@@ -100,6 +105,8 @@ public class NewAlbumActivity extends AppCompatActivity {
 
         mCollaboratorNameInputView = (AutoCompleteTextView) findViewById(R.id.new_album_collaborator_input);
         mAlbumNameView = (EditText) findViewById(R.id.new_album_name_input);
+        mAlbumDescription = (EditText) findViewById(R.id.new_album_description_input);
+
         mCollaboratorsListView = (RecyclerView) findViewById(R.id.new_album_colaborator_list);
         mAddCollaboratorButton = (ImageButton) findViewById(R.id.new_album_add_collaborator_bt);
 
@@ -157,6 +164,19 @@ public class NewAlbumActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.save_album_action: {
                 //TODO: Save album here
+                Album album = new Album();
+                album.setAuthor(ParseUser.getCurrentUser());
+                album.setName(mAlbumNameView.getText().toString());
+                album.setDescription(mAlbumDescription.getText().toString());
+                album.saveInBackground();
+
+                Context context = getApplicationContext();
+                CharSequence text = "New Album Created";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+                finish();
                 return true;
             }
             default:

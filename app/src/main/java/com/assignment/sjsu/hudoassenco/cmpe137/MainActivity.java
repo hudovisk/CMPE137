@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.appevents.AppEventsLogger;
+import com.parse.Parse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 

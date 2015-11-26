@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseObject;
 
 public class ParseApplication extends Application {
 
@@ -13,6 +14,7 @@ public class ParseApplication extends Application {
         super.onCreate();
 
         Parse.enableLocalDatastore(this);
+        ParseObject.registerSubclass(Album.class);
         Parse.initialize(this, "JKF0NbqkkyhUFhelLkqQhjbUMeMeqveLPwfcpbvv", "90ig345UBcaoriqawpM7iYfrnRueWqNlLYYGL70C");
         ParseFacebookUtils.initialize(this);
     }
