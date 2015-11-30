@@ -44,23 +44,6 @@
                 android:layout_above="@id/tabs"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
 
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/editText"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="93dp" />
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/editText2"
-                android:layout_centerVertical="true"
-                android:layout_alignParentStart="true" />
-
         </RelativeLayout>
     </RelativeLayout>
 

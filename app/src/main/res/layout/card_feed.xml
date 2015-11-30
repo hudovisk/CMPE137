@@ -17,8 +17,8 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
-                    android:src="@android:drawable/sym_def_app_icon"
                     android:id="@+id/feed_profile_picture"
+                    android:src="@android:drawable/sym_def_app_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_alignParentLeft="true"
@@ -50,7 +50,7 @@
                     />
 
                 <TextView
-                    android:id="@+id/feed_profile_name"
+                    android:id="@+id/feed_author_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="20dp"
@@ -67,14 +67,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="20dp"
-                    android:layout_toRightOf="@id/feed_profile_name"
+                    android:layout_toRightOf="@id/feed_author_name"
                     android:layout_below="@id/feed_album_name"
                     android:text=" at "
                     android:textSize="14sp"
                     />
 
                 <TextView
-                    android:id="@+id/feed_profile_place"
+                    android:id="@+id/feed_place_picture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="20dp"
@@ -97,6 +97,7 @@
                 android:scaleType="fitCenter"/>
 
             <TextView
+                android:id="@+id/feed_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Description"

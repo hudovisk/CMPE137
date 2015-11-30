@@ -16,7 +16,7 @@
 
     <style name="AppTheme.Login" parent="AppTheme.NoActionBar">
         <item name="android:windowBackground">@color/colorPrimary</item>
-        <item name="android:background">@drawable/sunset</item>
+        <!--<item name="android:background">@drawable/sunset</item>-->
         <item name="colorButtonNormal">@color/colorPrimaryDark</item>
         <item name="android:colorButtonNormal">@color/colorPrimaryDark</item>
 
