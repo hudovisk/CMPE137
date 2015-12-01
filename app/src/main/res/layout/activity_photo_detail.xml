@@ -37,6 +37,7 @@
 
                     <ImageView
                         android:id="@+id/photo_detail_profile_picture"
+                        android:transitionName="profilePictureView"
                         android:src="@android:drawable/sym_def_app_icon"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
@@ -45,6 +46,7 @@
 
                     <TextView
                         android:id="@+id/photo_detail_description"
+                        android:transitionName="descriptionView"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingTop="8dp"
