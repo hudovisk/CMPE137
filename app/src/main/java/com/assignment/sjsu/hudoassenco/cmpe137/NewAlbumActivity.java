@@ -183,6 +183,7 @@ public class NewAlbumActivity extends AppCompatActivity {
                             if (e == null) {
                                 // The query was successful.
                                 relation.add(objects.get(0));
+                                album.incrementNumberOfCollaborators();
                                 album.saveInBackground();
 
                             } else {
