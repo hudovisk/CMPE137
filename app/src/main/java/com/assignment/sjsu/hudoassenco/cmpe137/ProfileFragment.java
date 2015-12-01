@@ -58,7 +58,7 @@ public class ProfileFragment extends Fragment {
         });
 
         ParseUser user = ParseUser.getCurrentUser();
-        mProfileNameView.setText(user.getString("name"));
+//        mProfileNameView.setText(user.getString("name"));
 
         if(ParseFacebookUtils.isLinked(user)) {
             AccessToken accessToken = AccessToken.getCurrentAccessToken();

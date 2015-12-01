@@ -1,7 +1,9 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,10 +17,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -90,9 +98,10 @@ public class SharedAlbumsFragment extends Fragment {
         return rootView;
     }
 
-    private class SharedAlbumsAdapter extends RecyclerView.Adapter<SharedAlbumsAdapter.ViewHolder> {
+    private class SharedAlbumsAdapter extends RecyclerView.Adapter<SharedAlbumsAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<SharedAlbumsAdapter.ViewHolder> {
 
         private List<Album> mAlbums;
+        private BitmapDownloader<ViewHolder> mBitmapDownloader;
 
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
 
@@ -123,6 +132,17 @@ public class SharedAlbumsFragment extends Fragment {
 
         public SharedAlbumsAdapter(List<Album> mAlbums) {
             this.mAlbums = mAlbums;
+
+            mBitmapDownloader = new BitmapDownloader<>(new Handler());
+            mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+            mBitmapDownloader.start();
+            mBitmapDownloader.getLooper();
+        }
+
+
+        @Override
+        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
+            holder.mAuthorPictureView.setImageBitmap(image);
         }
 
         @Override
@@ -135,12 +155,38 @@ public class SharedAlbumsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             final Album album = mAlbums.get(position);
 
             holder.mAlbumNameView.setText(album.getName());
 
             String facebookId = album.getAuthor().getString("facebookId");
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
+            GraphRequest request = GraphRequest.newGraphPathRequest(
+                    accessToken,
+                    "/"+facebookId,
+                    new GraphRequest.Callback() {
+                        @Override
+                        public void onCompleted(GraphResponse response) {
+                            JSONObject result = response.getJSONObject();
+                            try {
+                                String name = result.getString("name");
+                                String pictureUrl = result.getJSONObject("data")
+                                        .getJSONObject("picture")
+                                        .getString("url");
+                                holder.mAlbumNameView.setText(name);
+                                mBitmapDownloader.queueUrl(holder, pictureUrl);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+
+            Bundle parameters = new Bundle();
+            parameters.putString("fields", "name,picture");
+            request.setParameters(parameters);
+            request.executeAsync();
         }
 
         @Override
