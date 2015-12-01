@@ -5,9 +5,14 @@ import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -70,7 +75,10 @@ public class NewsFeedFragment extends Fragment {
             public void onClick(View v) {
                 if(v.equals(mPictureView)) {
                     //TODO: Pass a photo identifier to PhotoDetailActivity to query more information.
-                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), mPictureView, "pictureView");
+                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+                            Pair.create((View) mPictureView, "pictureView"),
+                            Pair.create((View) mProfilePictureView, "profilePictureView"));
+//                            Pair.create((View) mDescriptionView, "descriptionView"));
                     Intent intent = new Intent(getContext(), PhotoDetailActivity.class);
                     getActivity().startActivity(intent, optionsCompat.toBundle());
                 }

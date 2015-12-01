@@ -5,7 +5,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,6 +19,35 @@ public class SharedAlbumsFragment extends Fragment {
     private RecyclerView mAlbumsView;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.Adapter mAdapter;
+
+    private ActionMode mActionMode;
+    private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            MenuInflater menuInflater = mode.getMenuInflater();
+            menuInflater.inflate(R.menu.contextual_shared_album_menu, menu);
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+        }
+    };
 
     public SharedAlbumsFragment() {
         // Required empty public constructor
@@ -41,9 +74,17 @@ public class SharedAlbumsFragment extends Fragment {
 
     private class SharedAlbumsAdapter extends RecyclerView.Adapter<SharedAlbumsAdapter.ViewHolder> {
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
             public ViewHolder(View itemView) {
                 super(itemView);
+                itemView.setOnLongClickListener(this);
+            }
+
+            @Override
+            public boolean onLongClick(View v) {
+                mActionMode = getActivity().startActionMode(mActionModeCallback);
+                v.setSelected(true);
+                return true;
             }
         }
 

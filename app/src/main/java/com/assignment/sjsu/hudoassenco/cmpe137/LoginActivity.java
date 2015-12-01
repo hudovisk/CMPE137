@@ -21,12 +21,17 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
@@ -105,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         mLoginWithFacebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String[] permissions = {"user_photos","user_friends"};
+                String[] permissions = {"user_photos","user_friends","email"};
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this,
                         Arrays.asList(permissions), new LogInCallback() {
                             @Override
@@ -113,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (user == null) {
                                     Log.d("CMPE137", "User cancelled login");
                                 } else if(user.isNew()) {
-
+                                    getFacebookId();
                                 } else {
                                     openMainActivity();
                                 }
@@ -121,24 +126,34 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
+    }
 
-//        Use this the first time to get your KeyHash for your device.
-//        source: http://stackoverflow.com/a/23863110
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.assignment.sjsu.hudoassenco.cmpe137",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-
-        }
-
+    private void getFacebookId() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        GraphRequest request = GraphRequest.newMeRequest(
+                accessToken,
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        JSONObject result = response.getJSONObject();
+                        try {
+                            String id = result.getString("id");
+                            ParseUser user = ParseUser.getCurrentUser();
+                            user.put("facebookId", id);
+                            try {
+                                user.save();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
     @Override

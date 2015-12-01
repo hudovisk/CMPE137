@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
@@ -212,3 +213,15 @@ public class NewAlbumActivity extends AppCompatActivity {
         }
     };
 }
+
+//ParseQuery<ParseUser> query = ParseUser.getQuery();
+//query.whereEqualTo("facebookId", facebookId);
+//        query.findInBackground(new FindCallback<ParseUser>() {
+//public void done(List<ParseUser> objects, ParseException e) {
+//        if (e == null) {
+//        // The query was successful.
+//        } else {
+//        // Something went wrong.
+//        }
+//        }
+//        });
