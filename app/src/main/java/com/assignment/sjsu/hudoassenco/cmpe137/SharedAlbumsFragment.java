@@ -160,33 +160,39 @@ public class SharedAlbumsFragment extends Fragment {
 
             holder.mAlbumNameView.setText(album.getName());
 
-            String facebookId = album.getAuthor().getString("facebookId");
-            AccessToken accessToken = AccessToken.getCurrentAccessToken();
-            GraphRequest request = GraphRequest.newGraphPathRequest(
-                    accessToken,
-                    "/"+facebookId,
-                    new GraphRequest.Callback() {
-                        @Override
-                        public void onCompleted(GraphResponse response) {
-                            JSONObject result = response.getJSONObject();
-                            try {
-                                String name = result.getString("name");
-                                String pictureUrl = result.getJSONObject("data")
-                                        .getJSONObject("picture")
-                                        .getString("url");
-                                holder.mAlbumNameView.setText(name);
-                                mBitmapDownloader.queueUrl(holder, pictureUrl);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+            String facebookId = null;
+            try {
+                facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
+
+                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                GraphRequest request = GraphRequest.newGraphPathRequest(
+                        accessToken,
+                        "/"+facebookId,
+                        new GraphRequest.Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse response) {
+                                JSONObject result = response.getJSONObject();
+                                try {
+                                    String name = result.getString("name");
+                                    String pictureUrl = result.getJSONObject("picture")
+                                            .getJSONObject("data")
+                                            .getString("url");
+                                    holder.mAuthorNameView.setText(name);
+                                    holder.mNumberCollaboratorsView.setText("+"+album.getNumberOfCollaborators()+" Friends");
+                                    mBitmapDownloader.queueUrl(holder, pictureUrl);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
+                        });
 
-                        }
-                    });
-
-            Bundle parameters = new Bundle();
-            parameters.putString("fields", "name,picture");
-            request.setParameters(parameters);
-            request.executeAsync();
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "name,picture");
+                request.setParameters(parameters);
+                request.executeAsync();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override

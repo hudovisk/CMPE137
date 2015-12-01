@@ -3,7 +3,9 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,8 +16,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-public class SearchableActivity extends AppCompatActivity {
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SearchableActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private SearchView mSearchView;
     private RecyclerView mResultsView;
@@ -33,10 +51,8 @@ public class SearchableActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         mResultsView = (RecyclerView) findViewById(R.id.result_view);
         mLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        mAdapter = new SearchResultAdapter();
 
         mResultsView.setLayoutManager(mLayoutManager);
-        mResultsView.setAdapter(mAdapter);
 
         Intent intent = getIntent();
         handleIntent(intent);
@@ -53,6 +69,7 @@ public class SearchableActivity extends AppCompatActivity {
         // Assumes current activity is the searchable activity
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchView.setIconifiedByDefault(false);
+        mSearchView.setOnQueryTextListener(this);
 
         // TODO: Bug with searchView and request focus. Keyboard not showing up.
 
@@ -67,35 +84,176 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEARCH.equals(action)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d("CMPE137", "Query: " + query);
             //TODO: Search
+        } else {
+            getAllAlbums();
+            if (Intent.ACTION_SEND.equals(action) && type != null) {
+                if (type.startsWith("image/")) {
+                    handleSendImage(intent); // Handle single image being sent
+                }
+            } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+                if (type.startsWith("image/")) {
+                    handleSendMultipleImages(intent); // Handle multiple images being sent
+                }
+            }
         }
+
     }
 
-    private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> {
+    private void getAllAlbums() {
+        ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
+        queryAuthor.whereEqualTo("author", ParseUser.getCurrentUser());
+        ParseQuery<Album> queryCollaborator = ParseQuery.getQuery("Album");
+        queryCollaborator.whereEqualTo("collaborators", ParseUser.getCurrentUser());
+        List<ParseQuery<Album>> queries = new ArrayList<>();
+        queries.add(queryAuthor);
+        queries.add(queryCollaborator);
+        ParseQuery<Album> mainQuery = ParseQuery.or(queries);
+        mainQuery.orderByDescending("createdAt");
+        mainQuery.findInBackground(new FindCallback<Album>() {
+            public void done(List<Album> results, ParseException e) {
+                mAdapter = new SearchResultAdapter(results);
+                mResultsView.setAdapter(mAdapter);
+            }
+        });
+    }
+
+    private void handleSendMultipleImages(Intent intent) {
+
+    }
+
+    private void handleSendImage(Intent intent) {
+
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<SearchResultAdapter.ViewHolder> {
+
+        private List<Album> mAlbums;
+        private BitmapDownloader<ViewHolder> mBitmapDownloader;
+
+        @Override
+        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
+            holder.mAuthorPictureView.setImageBitmap(image);
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
 
+            public ImageView mAuthorPictureView;
+            public TextView mAuthorNameView;
+            public TextView mAlbumNameView;
+            public TextView mNumberCollaboratorsView;
+
             public ViewHolder(View itemView) {
                 super(itemView);
+
+                mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
+                mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
+                mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
+                mNumberCollaboratorsView = (TextView) itemView.findViewById(R.id.album_number_contributors);
             }
+        }
+
+        public SearchResultAdapter(List<Album> mAlbums) {
+            this.mAlbums = mAlbums;
+
+            mBitmapDownloader = new BitmapDownloader<>(new Handler());
+            mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+            mBitmapDownloader.start();
+            mBitmapDownloader.getLooper();
+        }
+
+        public void animateTo(List<Album> models) {
+//            applyAndAnimateRemovals(models);
+//            applyAndAnimateAdditions(models);
+//            applyAndAnimateMovedItems(models);
+        }
+
+        public Album removeItem(int position) {
+            final Album model = mAlbums.remove(position);
+            notifyItemRemoved(position);
+            return model;
+        }
+
+        public void addItem(int position, Album model) {
+            mAlbums.add(position, model);
+            notifyItemInserted(position);
+        }
+
+        public void moveItem(int fromPosition, int toPosition) {
+            final Album model = mAlbums.remove(fromPosition);
+            mAlbums.add(toPosition, model);
+            notifyItemMoved(fromPosition, toPosition);
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View itemView = getLayoutInflater().from(parent.getContext())
+                    .inflate(R.layout.card_search_result, parent, false);
+
+            ViewHolder holder = new ViewHolder(itemView);
+            return holder;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
+            final Album album = mAlbums.get(position);
+
+            holder.mAlbumNameView.setText(album.getName());
+
+            String facebookId = null;
+            try {
+                facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
+
+                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                GraphRequest request = GraphRequest.newGraphPathRequest(
+                        accessToken,
+                        "/"+facebookId,
+                        new GraphRequest.Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse response) {
+                                JSONObject result = response.getJSONObject();
+                                try {
+                                    String name = result.getString("name");
+                                    String pictureUrl = result.getJSONObject("picture")
+                                            .getJSONObject("data")
+                                            .getString("url");
+                                    holder.mAuthorNameView.setText(name);
+                                    holder.mNumberCollaboratorsView.setText("+"+album.getNumberOfCollaborators()+" Friends");
+                                    mBitmapDownloader.queueUrl(holder, pictureUrl);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "name,picture");
+                request.setParameters(parameters);
+                request.executeAsync();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return mAlbums.size();
         }
 
     }

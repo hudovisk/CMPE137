@@ -28,8 +28,9 @@ public class Album  extends ParseObject {
     public int getNumberOfCollaborators (){
         return getInt("numberOfCollaborators");
     }
+
     public void incrementNumberOfCollaborators (){
-        increment("numberOfColaborators");
+        increment("numberOfCollaborators");
     }
     public void setDescription(String value){
         put("description",value);
