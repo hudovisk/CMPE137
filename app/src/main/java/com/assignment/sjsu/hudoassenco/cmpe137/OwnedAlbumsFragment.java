@@ -4,9 +4,18 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.List;
 
 public class OwnedAlbumsFragment extends Fragment {
 
@@ -37,6 +46,21 @@ public class OwnedAlbumsFragment extends Fragment {
         mAlbumsView.setHasFixedSize(true);
         mAlbumsView.setLayoutManager(mLayoutManager);
         mAlbumsView.setAdapter(mAdapter);
+
+        // query for list of albums from the current user
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Album");
+        query.whereEqualTo("author", ParseUser.getCurrentUser());
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> albums, ParseException e) {
+                if (e == null) {
+                    //success
+                    
+                } else {
+                   //error
+                }
+            }
+        });
 
         return rootView;
     }

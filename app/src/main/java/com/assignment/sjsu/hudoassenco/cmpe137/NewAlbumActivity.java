@@ -21,8 +21,11 @@ import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
@@ -31,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NewAlbumActivity extends AppCompatActivity {
 
@@ -166,8 +170,27 @@ public class NewAlbumActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.save_album_action: {
                 //TODO: Save album here
-                Album album = new Album();
+                final Album album = new Album();
+                final ParseRelation <ParseUser> relation = album.getRelation("collaborators");
 
+                for(int i=0; i<mCollaborators.size();i++){
+                    String facebookId = mCollaborators.get(i).mId;
+
+                    ParseQuery<ParseUser> query = ParseUser.getQuery();
+                    query.whereEqualTo("facebookId", facebookId);
+                    query.findInBackground(new FindCallback<ParseUser>() {
+                        public void done(List<ParseUser> objects, ParseException e) {
+                            if (e == null) {
+                                // The query was successful.
+                                relation.add(objects.get(0));
+                                album.saveInBackground();
+
+                            } else {
+                                // Something went wrong.
+                            }
+                        }
+                    });
+                }
 
                 album.setAuthor(ParseUser.getCurrentUser());
                 album.setName(mAlbumNameView.getText().toString());
