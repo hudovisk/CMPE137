@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.assignment.sjsu.hudoassenco.teste3.LoginActivity"
-
+    android:background="@drawable/beautyfull_view"
     >
 
     <LinearLayout
@@ -24,7 +24,7 @@
 
         <ImageView android:src="@drawable/logo"
             android:layout_width="wrap_content"
-            android:layout_height="128dp"
+            android:layout_height="100dp"
             android:layout_gravity="center"/>
 
         <!-- Email Label -->
@@ -76,16 +76,20 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
+            android:textColor="@color/white"
             android:text="@string/login_label"/>
 
         <Button
             android:id="@+id/login_facebook_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:background="@drawable/facebook_login_icon"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"
-            android:text="Log in with Facebook"/>
+            android:text=""/>
+
 
         <TextView
             android:id="@+id/login_signup_label"

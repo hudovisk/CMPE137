@@ -22,6 +22,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.parse.ParseObject;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -165,6 +166,8 @@ public class NewAlbumActivity extends AppCompatActivity {
             case R.id.save_album_action: {
                 //TODO: Save album here
                 Album album = new Album();
+
+
                 album.setAuthor(ParseUser.getCurrentUser());
                 album.setName(mAlbumNameView.getText().toString());
                 album.setDescription(mAlbumDescription.getText().toString());
