@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -15,7 +17,9 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class OwnedAlbumsFragment extends Fragment {
 
@@ -41,23 +45,21 @@ public class OwnedAlbumsFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
 //        mLayoutManager = new GridLayoutManager(getContext(), 2); //2 columns
 //        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mAdapter = new OwnedAlbumsAdapter();
+//        mAdapter = new OwnedAlbumsAdapter();
 
         mAlbumsView.setHasFixedSize(true);
         mAlbumsView.setLayoutManager(mLayoutManager);
-        mAlbumsView.setAdapter(mAdapter);
+//        mAlbumsView.setAdapter(mAdapter);
 
         // query for list of albums from the current user
 
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Album");
+        ParseQuery<Album> query = ParseQuery.getQuery("Album");
         query.whereEqualTo("author", ParseUser.getCurrentUser());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> albums, ParseException e) {
-                if (e == null) {
-                    //success
-                    
-                } else {
-                   //error
+        query.findInBackground(new FindCallback<Album>() {
+            public void done(List<Album> albums, ParseException e) {
+                if(e == null) {
+                    mAdapter = new OwnedAlbumsAdapter(albums);
+                    mAlbumsView.setAdapter(mAdapter);
                 }
             }
         });
@@ -67,25 +69,42 @@ public class OwnedAlbumsFragment extends Fragment {
 
     private class OwnedAlbumsAdapter extends RecyclerView.Adapter<OwnedAlbumsAdapter.ViewHolder> {
 
+        private List<Album> mAlbums;
+
         public class ViewHolder extends RecyclerView.ViewHolder {
+
+            public ImageView mThumbnailView;
+            public TextView mAlbumNameView;
+
             public ViewHolder(View itemView) {
                 super(itemView);
+
+                mThumbnailView = (ImageView) itemView.findViewById(R.id.album_thumbnail);
+                mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name);
             }
+        }
+
+        public OwnedAlbumsAdapter(List<Album> mAlbums) {
+            this.mAlbums = mAlbums;
         }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.card_album, parent, false);
+
+            ViewHolder viewHolder = new ViewHolder(itemView);
+            return viewHolder;
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-
+            holder.mAlbumNameView.setText(mAlbums.get(position).getName());
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return mAlbums.size();
         }
     }
 

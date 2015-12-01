@@ -12,6 +12,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.List;
 
 
 public class SharedAlbumsFragment extends Fragment {
@@ -63,21 +72,45 @@ public class SharedAlbumsFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
 //        mLayoutManager = new GridLayoutManager(getContext(), 2); //2 columns
 //        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mAdapter = new SharedAlbumsAdapter();
 
         mAlbumsView.setHasFixedSize(true);
         mAlbumsView.setLayoutManager(mLayoutManager);
-        mAlbumsView.setAdapter(mAdapter);
+
+        ParseQuery<Album> query = ParseQuery.getQuery("Album");
+        query.whereEqualTo("collaborators", ParseUser.getCurrentUser());
+        query.findInBackground(new FindCallback<Album>() {
+            public void done(List<Album> albums, ParseException e) {
+                if (e == null) {
+                    mAdapter = new SharedAlbumsAdapter(albums);
+                    mAlbumsView.setAdapter(mAdapter);
+                }
+            }
+        });
 
         return rootView;
     }
 
     private class SharedAlbumsAdapter extends RecyclerView.Adapter<SharedAlbumsAdapter.ViewHolder> {
 
+        private List<Album> mAlbums;
+
         public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
+
+            public ImageView mThumbnailView;
+            public ImageView mAuthorPictureView;
+            public TextView mAuthorNameView;
+            public TextView mAlbumNameView;
+            public TextView mNumberCollaboratorsView;
+
             public ViewHolder(View itemView) {
                 super(itemView);
                 itemView.setOnLongClickListener(this);
+
+                mThumbnailView = (ImageView) itemView.findViewById(R.id.album_thumbnail);
+                mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
+                mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
+                mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
+                mNumberCollaboratorsView = (TextView) itemView.findViewById(R.id.album_number_contributors);
             }
 
             @Override
@@ -86,6 +119,10 @@ public class SharedAlbumsFragment extends Fragment {
                 v.setSelected(true);
                 return true;
             }
+        }
+
+        public SharedAlbumsAdapter(List<Album> mAlbums) {
+            this.mAlbums = mAlbums;
         }
 
         @Override
@@ -99,12 +136,16 @@ public class SharedAlbumsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
+            final Album album = mAlbums.get(position);
 
+            holder.mAlbumNameView.setText(album.getName());
+
+            String facebookId = album.getAuthor().getString("facebookId");
         }
 
         @Override
         public int getItemCount() {
-            return 10;
+            return mAlbums.size();
         }
 
     }
