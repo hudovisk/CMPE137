@@ -6,6 +6,8 @@
 
     <color name="white">#FFFFFF</color>
 
+    <color name="facebook_bg">#3b5998</color>
+
     <color name="link">#0000ff</color>
 
     <color name="album_text_protection">#80000000</color>

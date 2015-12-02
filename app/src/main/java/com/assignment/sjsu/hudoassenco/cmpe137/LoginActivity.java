@@ -178,8 +178,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void openMainActivity() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
+        Intent previousIntent = getIntent();
+        if(Intent.ACTION_SEND.equals(previousIntent.getAction()) ||
+                Intent.ACTION_SEND_MULTIPLE.equals(previousIntent.getAction())) {
+            Intent intent = new Intent(previousIntent);
+            intent.setClass(this, SearchableActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
         finish();
     }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AppName</string>
+    <string name="app_name">Momentum</string>
     <string name="log_tag">CMPE137</string>
     
     <string name="facebook_app_id">104512003249778</string>
@@ -17,6 +17,7 @@
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="login_label">SIGN IN</string>
+    <string name="login_with_facebook">Log in with Facebook</string>
     <string name="signup_link_label">Not a member? Sign up here.</string>
     <string name="signin_link_label">Already a member? Sign in here.</string>
     <string name="login_progress">Authenticating…</string>
@@ -28,13 +29,10 @@
     <string name="title_activity_sign_up">SignUpActivity</string>
     <string name="new_album">New Album</string>
     <string name="search">Search</string>
-    <string name="search_hint">Search photos and albuns</string>
+    <string name="search_hint">Search photos and albums</string>
 
     <string name="title_activity_searchable">Search</string>
     <string name="title_activity_NewAlbum">New Album</string>
-
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="dumb_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sollicitudin vestibulum suscipit. Donec ornare ligula tellus, et scelerisque magna luctus sit amet. Cras ullamcorper pellentesque metus quis viverra. Mauris et ante in diam accumsan eleifend vel vitae leo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</string>
 

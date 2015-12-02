@@ -38,7 +38,14 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
     private SearchView mSearchView;
     private RecyclerView mResultsView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
+    private SearchResultAdapter mAdapter;
+    private List<Album> mAllAlbums;
+
+    public SearchableActivity() {
+        mAllAlbums = new ArrayList<>();
+        mAdapter = new SearchResultAdapter(mAllAlbums);
+        mAdapter.setHasStableIds(true);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
         mLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
 
         mResultsView.setLayoutManager(mLayoutManager);
+        mResultsView.setAdapter(mAdapter);
 
         Intent intent = getIntent();
         handleIntent(intent);
@@ -117,8 +125,11 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
         mainQuery.orderByDescending("createdAt");
         mainQuery.findInBackground(new FindCallback<Album>() {
             public void done(List<Album> results, ParseException e) {
-                mAdapter = new SearchResultAdapter(results);
-                mResultsView.setAdapter(mAdapter);
+                if(e == null) {
+                    mAllAlbums = results;
+                    mAdapter.setAlbums(mAllAlbums);
+                    mResultsView.scrollToPosition(0);
+                }
             }
         });
     }
@@ -137,8 +148,24 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
+    public boolean onQueryTextChange(String query) {
+        final List<Album> filteredModelList = filter(mAllAlbums, query);
+        mAdapter.setAlbums(filteredModelList);
+        mResultsView.scrollToPosition(0);
+        return true;
+    }
+
+    private List<Album> filter(List<Album> albums, String query) {
+        query = query.toLowerCase();
+
+        final List<Album> filteredAlbumsList = new ArrayList<>();
+        for (Album album : albums) {
+            final String text = album.getName().toLowerCase();
+            if (text.contains(query)) {
+                filteredAlbumsList.add(album);
+            }
+        }
+        return filteredAlbumsList;
     }
 
     private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<SearchResultAdapter.ViewHolder> {
@@ -177,27 +204,9 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             mBitmapDownloader.getLooper();
         }
 
-        public void animateTo(List<Album> models) {
-//            applyAndAnimateRemovals(models);
-//            applyAndAnimateAdditions(models);
-//            applyAndAnimateMovedItems(models);
-        }
-
-        public Album removeItem(int position) {
-            final Album model = mAlbums.remove(position);
-            notifyItemRemoved(position);
-            return model;
-        }
-
-        public void addItem(int position, Album model) {
-            mAlbums.add(position, model);
-            notifyItemInserted(position);
-        }
-
-        public void moveItem(int fromPosition, int toPosition) {
-            final Album model = mAlbums.remove(fromPosition);
-            mAlbums.add(toPosition, model);
-            notifyItemMoved(fromPosition, toPosition);
+        @Override
+        public long getItemId(int position) {
+            return mAlbums.get(position).getObjectId().hashCode();
         }
 
         @Override
@@ -256,5 +265,12 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             return mAlbums.size();
         }
 
+        public List<Album> getAlbums() {
+            return mAlbums;
+        }
+
+        public void setAlbums(List<Album> mAlbums) {
+            this.mAlbums = mAlbums;
+        }
     }
 }
