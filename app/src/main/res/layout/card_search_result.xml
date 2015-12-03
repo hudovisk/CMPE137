@@ -13,6 +13,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/album_thumbnail"
             android:src="@drawable/teste"
             android:layout_alignParentTop="true"
             android:layout_alignBottom="@+id/album_info_panel"

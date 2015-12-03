@@ -142,13 +142,10 @@ public class NewsFeedFragment extends Fragment {
         public void onBindViewHolder(final ViewHolder holder, int position) {
             final Feed feed = mFeeds.get(position);
 
-            Album album = feed.getAlbum();
-
-
-            holder.mAlbumNameView.setText(album.getName());
-            String facebookId = null;
             try {
-                facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
+                final Album album = feed.getAlbum().fetchIfNeeded();
+                holder.mAlbumNameView.setText(album.getName());
+                final String facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
 
                 AccessToken accessToken = AccessToken.getCurrentAccessToken();
                 GraphRequest request = GraphRequest.newGraphPathRequest(

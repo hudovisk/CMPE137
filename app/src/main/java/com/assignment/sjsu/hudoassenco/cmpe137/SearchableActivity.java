@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -224,18 +225,22 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
         return filteredAlbumsList;
     }
 
-    private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<SearchResultAdapter.ViewHolder> {
+    private class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<ImageView> {
 
         private List<Album> mAlbums;
-        private BitmapDownloader<ViewHolder> mBitmapDownloader;
+        private BitmapDownloader<ImageView> mBitmapDownloader;
 
         @Override
-        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
-            holder.mAuthorPictureView.setImageBitmap(image);
+        public void onBitmapDownloaded(ImageView holder, Bitmap image) {
+            int width = holder.getWidth();
+            int height = holder.getHeight();
+            Bitmap thumbail = ThumbnailUtils.extractThumbnail(image, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+            holder.setImageBitmap(thumbail);
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener {
 
+            public ImageView mThumbnailView;
             public ImageView mAuthorPictureView;
             public TextView mAuthorNameView;
             public TextView mAlbumNameView;
@@ -245,6 +250,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                 super(itemView);
                 itemView.setOnClickListener(this);
 
+                mThumbnailView = (ImageView) itemView.findViewById(R.id.album_thumbnail);
                 mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
                 mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
                 mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
@@ -335,6 +341,22 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             try {
                 facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
 
+                ParseQuery<Photo> query = ParseQuery.getQuery(Photo.class);
+                query.whereEqualTo("originAlbum", album);
+                query.findInBackground(new FindCallback<Photo>() {
+                    public void done(List<Photo> scoreList, ParseException e) {
+                        if (e == null) {
+                            if(!scoreList.isEmpty()) {
+                                int width = holder.mThumbnailView.getWidth();
+                                int height = holder.mThumbnailView.getHeight();
+                                mBitmapDownloader.queueUrl(holder.mThumbnailView, scoreList.get(0).getImage().getUrl(), new Size(width, height));
+                            }
+                        } else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
                 AccessToken accessToken = AccessToken.getCurrentAccessToken();
                 GraphRequest request = GraphRequest.newGraphPathRequest(
                         accessToken,
@@ -354,7 +376,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                                     int width = holder.mAuthorPictureView.getWidth();
                                     int height = holder.mAuthorPictureView.getHeight();
 
-                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
+                                    mBitmapDownloader.queueUrl(holder.mAuthorPictureView, pictureUrl, new Size(width,height));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
