@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
+import android.util.Size;
 
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +23,7 @@ public class BitmapDownloader<T> extends HandlerThread {
 
     private OnBitmapDownloadedListenner<T> mOnBitmapDownloadedListenner;
 
-    private ConcurrentMap<T, String> mHolderMap;
+    private ConcurrentMap<T, Pair<String, Size>> mHolderMap;
 
     public BitmapDownloader(Handler responseHandler) {
         super(TAG);
@@ -60,24 +62,42 @@ public class BitmapDownloader<T> extends HandlerThread {
         this.mOnBitmapDownloadedListenner = onBitmapDownloadedListenner;
     }
 
-    public void queueUrl(T holder, String url) {
+    public void queueUrl(T holder, String url, Size destinationSize) {
         Log.v(TAG, "Queue url: "+url);
         if(url == null) {
             mHolderMap.remove(holder);
         } else {
-            mHolderMap.put(holder, url);
+            mHolderMap.put(holder, new Pair<String, Size>(url, destinationSize));
             mRequestHandler.obtainMessage(DOWNLOAD_MESSAGE_WHAT, holder)
                     .sendToTarget();
         }
     }
 
     private void handleRequest(final T holder) {
-        final String url = mHolderMap.get(holder);
+        final Pair<String, Size> pair = mHolderMap.get(holder);
+        final String url = pair.first;
+        final Size size = pair.second;
         Log.v(TAG, "Downloading bitmap from url: "+url);
 
         try {
+            final Bitmap image;
             InputStream in = new java.net.URL(url).openStream();
-            final Bitmap image = BitmapFactory.decodeStream(in);
+            if(size == null) {
+                image = BitmapFactory.decodeStream(in);
+            } else {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(in, null, options);
+
+                int sampleSize = Utils.calculateInSampleSize(options, size.getWidth(), size.getHeight());
+
+                in.close();
+                in = new java.net.URL(url).openStream();
+                options.inJustDecodeBounds = false;
+                options.inSampleSize = sampleSize;
+                image = BitmapFactory.decodeStream(in, null, options);
+            }
 
             mResponseHandler.post(new Runnable() {
                 @Override

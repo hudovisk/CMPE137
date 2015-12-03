@@ -38,9 +38,8 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
         mTabLayout.getTabAt(0).setIcon(R.drawable.ic_view_headline_black_24dp);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.ic_share_black_24dp);
-        mTabLayout.getTabAt(2).setIcon(R.drawable.ic_photo_library_black_24dp);
-        mTabLayout.getTabAt(3).setIcon(R.drawable.ic_account_box_black_24dp);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.ic_photo_library_black_24dp);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.ic_account_box_black_24dp);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.mId.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -119,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new NewsFeedFragment(), "");
-        adapter.addFragment(new SharedAlbumsFragment(), "");
         adapter.addFragment(new AlbumsFragment(), "");
         adapter.addFragment(new ProfileFragment(), "");
         viewPager.setAdapter(adapter);

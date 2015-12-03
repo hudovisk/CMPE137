@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Size;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -265,7 +266,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                                 public void done(ParseException e) {
                                     // Handle success or failure here ...
                                     mCountPhotos--;
-                                    if(mCountPhotos==0){
+                                    if (mCountPhotos == 0) {
                                         mProgressDialog.dismiss();
                                     }
                                 }
@@ -343,7 +344,11 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                                             .getString("url");
                                     holder.mAuthorNameView.setText(name);
                                     holder.mNumberCollaboratorsView.setText(String.valueOf(album.getNumberOfCollaborators()));
-                                    mBitmapDownloader.queueUrl(holder, pictureUrl);
+
+                                    int width = holder.mAuthorPictureView.getWidth();
+                                    int height = holder.mAuthorPictureView.getHeight();
+
+                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

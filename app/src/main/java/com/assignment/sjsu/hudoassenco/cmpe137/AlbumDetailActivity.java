@@ -83,7 +83,7 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-       // mLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+//        mLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mPhotosListView = (RecyclerView) this.findViewById(R.id.album_detail_photos);
         mPhotosListView.setLayoutManager(mLayoutManager);

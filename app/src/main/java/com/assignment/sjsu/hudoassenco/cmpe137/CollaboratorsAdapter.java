@@ -3,6 +3,7 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +42,11 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
         Collaborator collaborator = mCollaborators.get(position);
 
         holder.mName.setText(collaborator.mName);
-        mBitmapDownloader.queueUrl(holder, collaborator.mPictureUrl);
+
+        int width = holder.mPicture.getWidth();
+        int height = holder.mPicture.getHeight();
+
+        mBitmapDownloader.queueUrl(holder, collaborator.mPictureUrl, new Size(width, height));
     }
 
     @Override
