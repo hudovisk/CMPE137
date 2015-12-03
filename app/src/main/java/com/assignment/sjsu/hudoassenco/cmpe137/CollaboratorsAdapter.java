@@ -21,7 +21,7 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
         mCollaborators = collaborators;
 
         mBitmapDownloader = new BitmapDownloader<>(new Handler());
-        mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+        mBitmapDownloader.setOnBitmapDownloadedListenner(this);
         mBitmapDownloader.start();
         mBitmapDownloader.getLooper();
     }

@@ -1,5 +1,6 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-public class OwnedAlbumsFragment extends Fragment {
+public class AlbumsFragment extends Fragment {
 
     private RecyclerView mAlbumsView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -74,7 +75,7 @@ public class OwnedAlbumsFragment extends Fragment {
         }
     };
 
-    public OwnedAlbumsFragment() {
+    public AlbumsFragment() {
         mAdapter = new OwnedAlbumsAdapter(new ArrayList<Album>());
     }
 
@@ -151,7 +152,11 @@ public class OwnedAlbumsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(mActionMode == null) {
-                    //TODO:Open Album Detail Activity
+                    final Album album = mAlbums.get(getAdapterPosition());
+                    Intent intent = new Intent(getContext(), AlbumDetailActivity.class);
+                    intent.putExtra("id", album.getObjectId());
+                    intent.putExtra("name", album.getName());
+                    startActivity(intent);
                 } else {
                     Integer position = getAdapterPosition();
                     if(mSelectedPositions.contains(position)) {

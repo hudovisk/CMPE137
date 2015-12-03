@@ -257,7 +257,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                         try {
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(SearchableActivity.this.getContentResolver(), mImageUris.get(i));
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
                             byte[] data = stream.toByteArray();
                             ParseFile file = new ParseFile("teste.jpg", data);
 
@@ -275,12 +275,11 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                                 }
                             });
 
-                            ParseObject photo = new ParseObject("Photo");
-                            photo.put("image", file);
-                            photo.put("originAlbum", album);
-                            photo.put("author",ParseUser.getCurrentUser());
+                            Photo photo = new Photo();
+                            photo.setImage(file);
+                            photo.setAlbum(album);
+                            photo.setAuthor(ParseUser.getCurrentUser());
                             photo.saveInBackground();
-
 
                         }catch (IOException e){
                             e.printStackTrace();
@@ -300,7 +299,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             this.mAlbums = mAlbums;
 
             mBitmapDownloader = new BitmapDownloader<>(new Handler());
-            mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+            mBitmapDownloader.setOnBitmapDownloadedListenner(this);
             mBitmapDownloader.start();
             mBitmapDownloader.getLooper();
         }

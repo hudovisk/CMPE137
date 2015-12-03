@@ -49,15 +49,15 @@ public class BitmapDownloader<T> extends HandlerThread {
     }
 
     public interface OnBitmapDownloadedListenner<T> {
-        public void onBitmapDownloaded(T holder, Bitmap image);
+        void onBitmapDownloaded(T holder, Bitmap image);
     }
 
-    public OnBitmapDownloadedListenner<T> getmOnBitmapDownloadedListenner() {
+    public OnBitmapDownloadedListenner<T> getOnBitmapDownloadedListenner() {
         return mOnBitmapDownloadedListenner;
     }
 
-    public void setmOnBitmapDownloadedListenner(OnBitmapDownloadedListenner<T> mOnBitmapDownloadedListenner) {
-        this.mOnBitmapDownloadedListenner = mOnBitmapDownloadedListenner;
+    public void setOnBitmapDownloadedListenner(OnBitmapDownloadedListenner<T> onBitmapDownloadedListenner) {
+        this.mOnBitmapDownloadedListenner = onBitmapDownloadedListenner;
     }
 
     public void queueUrl(T holder, String url) {

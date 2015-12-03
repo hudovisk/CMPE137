@@ -13,8 +13,11 @@ public class ParseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Parse.enableLocalDatastore(this);
         ParseObject.registerSubclass(Album.class);
+        ParseObject.registerSubclass(Photo.class);
+        ParseObject.registerSubclass(Comment.class);
+
+        Parse.enableLocalDatastore(this);
         Parse.initialize(this, "JKF0NbqkkyhUFhelLkqQhjbUMeMeqveLPwfcpbvv", "90ig345UBcaoriqawpM7iYfrnRueWqNlLYYGL70C");
         ParseFacebookUtils.initialize(this);
     }

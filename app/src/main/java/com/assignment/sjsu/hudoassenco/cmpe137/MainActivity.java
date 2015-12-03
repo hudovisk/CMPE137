@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.appevents.AppEventsLogger;
-import com.parse.Parse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new NewsFeedFragment(), "");
         adapter.addFragment(new SharedAlbumsFragment(), "");
-        adapter.addFragment(new OwnedAlbumsFragment(), "");
+        adapter.addFragment(new AlbumsFragment(), "");
         adapter.addFragment(new ProfileFragment(), "");
         viewPager.setAdapter(adapter);
     }

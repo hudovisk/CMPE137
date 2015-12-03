@@ -168,7 +168,7 @@ public class SharedAlbumsFragment extends Fragment {
             mSelectedPositions = new ArrayList<>();
 
             mBitmapDownloader = new BitmapDownloader<>(new Handler());
-            mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
+            mBitmapDownloader.setOnBitmapDownloadedListenner(this);
             mBitmapDownloader.start();
             mBitmapDownloader.getLooper();
         }
