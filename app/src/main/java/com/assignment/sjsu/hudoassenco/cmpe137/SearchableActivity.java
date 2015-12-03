@@ -242,7 +242,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                                             .getJSONObject("data")
                                             .getString("url");
                                     holder.mAuthorNameView.setText(name);
-                                    holder.mNumberCollaboratorsView.setText("+"+album.getNumberOfCollaborators()+" Friends");
+                                    holder.mNumberCollaboratorsView.setText(String.valueOf(album.getNumberOfCollaborators()));
                                     mBitmapDownloader.queueUrl(holder, pictureUrl);
                                 } catch (JSONException e) {
                                     e.printStackTrace();

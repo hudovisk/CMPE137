@@ -35,5 +35,8 @@
     <string name="title_activity_NewAlbum">New Album</string>
 
     <string name="dumb_description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc sollicitudin vestibulum suscipit. Donec ornare ligula tellus, et scelerisque magna luctus sit amet. Cras ullamcorper pellentesque metus quis viverra. Mauris et ante in diam accumsan eleifend vel vitae leo. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos.</string>
+    <string name="edit_album">Edit Album</string>
+    <string name="delete_album">Delete Album</string>
+    <string name="album_by">by</string>
 
 </resources>

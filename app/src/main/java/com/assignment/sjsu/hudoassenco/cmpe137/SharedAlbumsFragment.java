@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -28,6 +29,7 @@ import com.parse.ParseUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,7 +37,7 @@ public class SharedAlbumsFragment extends Fragment {
 
     private RecyclerView mAlbumsView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private RecyclerView.Adapter mAdapter;
+    private SharedAlbumsAdapter mAdapter;
 
     private ActionMode mActionMode;
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -67,7 +69,7 @@ public class SharedAlbumsFragment extends Fragment {
     };
 
     public SharedAlbumsFragment() {
-        // Required empty public constructor
+        mAdapter = new SharedAlbumsAdapter(new ArrayList<Album>());
     }
 
 
@@ -83,14 +85,15 @@ public class SharedAlbumsFragment extends Fragment {
 
         mAlbumsView.setHasFixedSize(true);
         mAlbumsView.setLayoutManager(mLayoutManager);
+        mAlbumsView.setAdapter(mAdapter);
 
         ParseQuery<Album> query = ParseQuery.getQuery("Album");
         query.whereEqualTo("collaborators", ParseUser.getCurrentUser());
         query.findInBackground(new FindCallback<Album>() {
             public void done(List<Album> albums, ParseException e) {
                 if (e == null) {
-                    mAdapter = new SharedAlbumsAdapter(albums);
-                    mAlbumsView.setAdapter(mAdapter);
+                    mAdapter.setAlbums(albums);
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -101,10 +104,13 @@ public class SharedAlbumsFragment extends Fragment {
     private class SharedAlbumsAdapter extends RecyclerView.Adapter<SharedAlbumsAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<SharedAlbumsAdapter.ViewHolder> {
 
         private List<Album> mAlbums;
+        private List<Integer> mSelectedPositions;
         private BitmapDownloader<ViewHolder> mBitmapDownloader;
 
-        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener{
+        public class ViewHolder extends RecyclerView.ViewHolder
+                implements View.OnLongClickListener, View.OnClickListener{
 
+            public RelativeLayout mAlbumLayout;
             public ImageView mThumbnailView;
             public ImageView mAuthorPictureView;
             public TextView mAuthorNameView;
@@ -115,23 +121,51 @@ public class SharedAlbumsFragment extends Fragment {
                 super(itemView);
                 itemView.setOnLongClickListener(this);
 
+                mAlbumLayout = (RelativeLayout) itemView.findViewById(R.id.album_layout);
                 mThumbnailView = (ImageView) itemView.findViewById(R.id.album_thumbnail);
                 mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
                 mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
                 mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
                 mNumberCollaboratorsView = (TextView) itemView.findViewById(R.id.album_number_contributors);
+
+                mAlbumLayout.setOnClickListener(this);
+                mAlbumLayout.setOnLongClickListener(this);
             }
 
             @Override
             public boolean onLongClick(View v) {
-                mActionMode = getActivity().startActionMode(mActionModeCallback);
-                v.setSelected(true);
+                if(mActionMode == null) {
+                    mActionMode = getActivity().startActionMode(mActionModeCallback);
+                    v.setActivated(true);
+                    mSelectedPositions.add(getAdapterPosition());
+                }
                 return true;
+            }
+
+            @Override
+            public void onClick(View v) {
+                if(mActionMode == null) {
+                    //TODO:Open Album Detail Activity
+                } else {
+                    Integer position = getAdapterPosition();
+                    if(mSelectedPositions.contains(position)) {
+                        v.setActivated(false);
+                        mSelectedPositions.remove(position);
+                        if(mSelectedPositions.isEmpty()) {
+                            mActionMode.finish();
+                            return;
+                        }
+                    } else {
+                        v.setActivated(true);
+                        mSelectedPositions.add(position);
+                    }
+                }
             }
         }
 
         public SharedAlbumsAdapter(List<Album> mAlbums) {
             this.mAlbums = mAlbums;
+            mSelectedPositions = new ArrayList<>();
 
             mBitmapDownloader = new BitmapDownloader<>(new Handler());
             mBitmapDownloader.setmOnBitmapDownloadedListenner(this);
@@ -178,7 +212,7 @@ public class SharedAlbumsFragment extends Fragment {
                                             .getJSONObject("data")
                                             .getString("url");
                                     holder.mAuthorNameView.setText(name);
-                                    holder.mNumberCollaboratorsView.setText("+"+album.getNumberOfCollaborators()+" Friends");
+                                    holder.mNumberCollaboratorsView.setText(String.valueOf(album.getNumberOfCollaborators()));
                                     mBitmapDownloader.queueUrl(holder, pictureUrl);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -200,6 +234,21 @@ public class SharedAlbumsFragment extends Fragment {
             return mAlbums.size();
         }
 
+        public List<Album> getAlbums() {
+            return mAlbums;
+        }
+
+        public void setAlbums(List<Album> albums) {
+            this.mAlbums = albums;
+        }
+
+        public List<Integer> getSelectedPositions() {
+            return mSelectedPositions;
+        }
+
+        public void setSelectedPositions(List<Integer> selectedPositions) {
+            this.mSelectedPositions = selectedPositions;
+        }
     }
 
 }
