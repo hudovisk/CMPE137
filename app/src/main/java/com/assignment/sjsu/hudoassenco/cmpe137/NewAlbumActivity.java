@@ -198,6 +198,13 @@ public class NewAlbumActivity extends AppCompatActivity {
                 album.setDescription(mAlbumDescription.getText().toString());
                 album.saveInBackground();
 
+                //create new feed
+
+                Feed feed = new Feed();
+                feed.setAuthor(ParseUser.getCurrentUser());
+                feed.setAlbum(album);
+                feed.saveInBackground();
+
                 Context context = getApplicationContext();
                 CharSequence text = "New Album Created";
                 int duration = Toast.LENGTH_SHORT;

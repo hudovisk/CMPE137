@@ -32,6 +32,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.List;
+
 
 public class SharedAlbumsFragment extends Fragment {
 
@@ -97,6 +105,10 @@ public class SharedAlbumsFragment extends Fragment {
                 }
             }
         });
+
+
+
+
 
         return rootView;
     }

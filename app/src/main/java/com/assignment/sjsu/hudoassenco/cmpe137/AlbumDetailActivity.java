@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
@@ -82,8 +83,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
-
+       // mLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mPhotosListView = (RecyclerView) this.findViewById(R.id.album_detail_photos);
         mPhotosListView.setLayoutManager(mLayoutManager);
         mPhotosListView.setAdapter(mAdapter);
