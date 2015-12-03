@@ -26,13 +26,24 @@
                     android:layout_centerVertical="true"
                     android:layout_margin="16dp"
                     />
-
+                <TextView
+                    android:id="@+id/feed_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="10dp"
+                    android:layout_toRightOf="@id/feed_profile_picture"
+                    android:clickable="true"
+                    android:text="New Album!"
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    />
                 <TextView
                     android:id="@+id/feed_album_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="20dp"
-                    android:layout_toRightOf="@id/feed_profile_picture"
+                    android:paddingTop="5dp"
+                    android:layout_toRightOf="@+id/feed_profile_picture"
+                    android:layout_below="@+id/feed_text"
                     android:clickable="true"
                     android:text="Vacations in California 2015"
                     android:textSize="16sp"
@@ -70,41 +81,17 @@
                     android:paddingBottom="20dp"
                     android:layout_toRightOf="@id/feed_author_name"
                     android:layout_below="@id/feed_album_name"
-                    android:text=" at "
+
                     android:textSize="14sp"
                     />
 
-                <TextView
-                    android:id="@+id/feed_place_picture"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="20dp"
-                    android:layout_toRightOf="@id/feed_profile_name_at"
-                    android:layout_below="@id/feed_album_name"
-                    android:clickable="true"
-                    android:text="Lake Tahoe"
-                    android:textSize="14sp"
-                    android:textColor="@color/link"
-                    />
+
 
             </RelativeLayout>
 
-            <ImageView
-                android:id="@+id/feed_picture"
-                android:transitionName="pictureView"
-                android:src="@drawable/teste"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"/>
 
-            <TextView
-                android:id="@+id/feed_description"
-                android:transitionName="descriptionView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Description"
-                android:textSize="16sp"/>
+
+
 
 
         </LinearLayout>

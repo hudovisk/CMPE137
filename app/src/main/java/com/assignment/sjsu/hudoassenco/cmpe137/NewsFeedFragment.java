@@ -98,8 +98,8 @@ public class NewsFeedFragment extends Fragment {
             public TextView mAlbumNameView;
             public TextView mAuthorNameView;
             public TextView mPlacePictureView;
-            public ImageView mPictureView;
-            public TextView mDescriptionView;
+
+
 
 
             public ViewHolder(View rootView) {
@@ -108,24 +108,24 @@ public class NewsFeedFragment extends Fragment {
                 mProfilePictureView = (ImageView) rootView.findViewById(R.id.feed_profile_picture);
                 mAlbumNameView = (TextView) rootView.findViewById(R.id.feed_album_name);
                 mAuthorNameView = (TextView) rootView.findViewById(R.id.feed_author_name);
-                mPlacePictureView = (TextView) rootView.findViewById(R.id.feed_place_picture);
-                mPictureView = (ImageView) rootView.findViewById(R.id.feed_picture);
-                mDescriptionView = (TextView) rootView.findViewById(R.id.feed_description);
+                //mPlacePictureView = (TextView) rootView.findViewById(R.id.feed_place_picture);
 
-                mPictureView.setOnClickListener(this);
+
+
+
             }
 
             @Override
             public void onClick(View v) {
-                if(v.equals(mPictureView)) {
-                    //TODO: Pass a photo identifier to PhotoDetailActivity to query more information.
-                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
-                            Pair.create((View) mPictureView, "pictureView"),
-                            Pair.create((View) mProfilePictureView, "profilePictureView"));
-//                            Pair.create((View) mDescriptionView, "descriptionView"));
-                    Intent intent = new Intent(getContext(), PhotoDetailActivity.class);
-                    getActivity().startActivity(intent, optionsCompat.toBundle());
-                }
+//                if(v.equals(mPictureView)) {
+//                    //TODO: Pass a photo identifier to PhotoDetailActivity to query more information.
+//                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+//                            Pair.create((View) mPictureView, "pictureView"),
+//                            Pair.create((View) mProfilePictureView, "profilePictureView"));
+////                            Pair.create((View) mDescriptionView, "descriptionView"));
+//                    Intent intent = new Intent(getContext(), PhotoDetailActivity.class);
+//                    getActivity().startActivity(intent, optionsCompat.toBundle());
+//                }
             }
         }
 

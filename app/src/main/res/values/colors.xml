@@ -9,6 +9,7 @@
     <color name="facebook_bg">#3b5998</color>
 
     <color name="link">#0000ff</color>
+    <color name="black">#000000</color>
 
     <color name="album_text_protection">#80000000</color>
 </resources>
