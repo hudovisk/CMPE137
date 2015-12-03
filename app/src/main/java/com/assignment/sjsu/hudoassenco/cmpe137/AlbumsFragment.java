@@ -2,12 +2,14 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.LruCache;
 import android.util.Size;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -151,11 +153,11 @@ public class AlbumsFragment extends Fragment {
     }
 
     private class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.ViewHolder>
-            implements BitmapDownloader.OnBitmapDownloadedListenner<AlbumsAdapter.ViewHolder> {
+            implements BitmapDownloader.OnBitmapDownloadedListenner<ImageView> {
 
         private List<Album> mAlbums;
         private List<Integer> mSelectedPositions;
-        private BitmapDownloader<ViewHolder> mBitmapDownloader;
+        private BitmapDownloader<ImageView> mBitmapDownloader;
 
         public class ViewHolder extends RecyclerView.ViewHolder
                 implements View.OnLongClickListener, View.OnClickListener {
@@ -247,8 +249,11 @@ public class AlbumsFragment extends Fragment {
         }
 
         @Override
-        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
-            holder.mAuthorPictureView.setImageBitmap(image);
+        public void onBitmapDownloaded(ImageView holder, Bitmap image) {
+            int width = holder.getWidth();
+            int height = holder.getHeight();
+            Bitmap thumbail = ThumbnailUtils.extractThumbnail(image, width, height, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+            holder.setImageBitmap(thumbail);
         }
 
         @Override
@@ -262,6 +267,22 @@ public class AlbumsFragment extends Fragment {
             String facebookId = null;
             try {
                 facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
+
+                ParseQuery<Photo> query = ParseQuery.getQuery(Photo.class);
+                query.whereEqualTo("originAlbum", album);
+                query.findInBackground(new FindCallback<Photo>() {
+                                           public void done(List<Photo> scoreList, ParseException e) {
+                                               if (e == null) {
+                                                   if(!scoreList.isEmpty()) {
+                                                       int width = holder.mThumbnailView.getWidth();
+                                                       int height = holder.mThumbnailView.getHeight();
+                                                       mBitmapDownloader.queueUrl(holder.mThumbnailView, scoreList.get(0).getImage().getUrl(), new Size(width, height));
+                                                   }
+                                               } else {
+                                                   e.printStackTrace();
+                                               }
+                                           }
+                                       });
 
                 AccessToken accessToken = AccessToken.getCurrentAccessToken();
                 GraphRequest request = GraphRequest.newGraphPathRequest(
@@ -282,7 +303,7 @@ public class AlbumsFragment extends Fragment {
                                     int width = holder.mAuthorPictureView.getWidth();
                                     int height = holder.mAuthorPictureView.getHeight();
 
-                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
+                                    mBitmapDownloader.queueUrl(holder.mAuthorPictureView, pictureUrl, new Size(width,height));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
