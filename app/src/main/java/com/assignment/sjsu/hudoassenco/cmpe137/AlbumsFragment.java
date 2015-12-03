@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.Size;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -74,6 +75,9 @@ public class AlbumsFragment extends Fragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
+                case R.id.delete_album_action:
+
+                    return true;
                 default:
                     return false;
             }
@@ -103,10 +107,18 @@ public class AlbumsFragment extends Fragment {
 
         mAlbumsView = (RecyclerView) rootView.findViewById(R.id.albums_view);
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        mAdapter = new AlbumsAdapter(new ArrayList<Album>());
 
         mAlbumsView.setHasFixedSize(true);
         mAlbumsView.setLayoutManager(mLayoutManager);
         mAlbumsView.setAdapter(mAdapter);
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         // query for list of albums from the current user
         ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
@@ -129,8 +141,13 @@ public class AlbumsFragment extends Fragment {
                 }
             }
         });
+    }
 
-        return rootView;
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mAdapter.clear();
     }
 
     private class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.ViewHolder>
@@ -139,10 +156,6 @@ public class AlbumsFragment extends Fragment {
         private List<Album> mAlbums;
         private List<Integer> mSelectedPositions;
         private BitmapDownloader<ViewHolder> mBitmapDownloader;
-
-        public void clearSelected() {
-            mSelectedPositions.clear();
-        }
 
         public class ViewHolder extends RecyclerView.ViewHolder
                 implements View.OnLongClickListener, View.OnClickListener {
@@ -229,6 +242,11 @@ public class AlbumsFragment extends Fragment {
         }
 
         @Override
+        public void onViewRecycled(ViewHolder holder) {
+            super.onViewRecycled(holder);
+        }
+
+        @Override
         public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
             holder.mAuthorPictureView.setImageBitmap(image);
         }
@@ -283,6 +301,16 @@ public class AlbumsFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mAlbums.size();
+        }
+
+        public void clear() {
+            mAlbums.clear();
+            mSelectedPositions.clear();
+            Log.d("CMPE137", "AlbumAdapter clean");
+        }
+
+        public void clearSelected() {
+            mSelectedPositions.clear();
         }
 
         public List<Album> getAlbums() {

@@ -10,6 +10,7 @@
     card_view:cardElevation="2dp">
 
     <LinearLayout
+        android:id="@+id/photo_layout"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"

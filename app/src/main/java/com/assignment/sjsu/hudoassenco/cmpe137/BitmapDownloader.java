@@ -118,4 +118,9 @@ public class BitmapDownloader<T> extends HandlerThread {
             e.printStackTrace();
         }
     }
+
+    public void clean() {
+        mHolderMap.clear();
+        getLooper().quitSafely();
+    }
 }

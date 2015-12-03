@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -39,6 +41,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
     private RecyclerView mPhotosListView;
     private RecyclerView.LayoutManager mLayoutManager;
     private PhotosAdapter mAdapter;
+
+    private LruCache<String, Bitmap> mMemoryCache;
 
     private ActionMode mActionMode;
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -66,6 +70,8 @@ public class AlbumDetailActivity extends AppCompatActivity {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
+            mAdapter.clearSelected();
+            mAdapter.notifyDataSetChanged();
         }
     };
 
@@ -81,10 +87,29 @@ public class AlbumDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory / 8;
+
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
 
 //        mLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mAdapter = new PhotosAdapter(new ArrayList<Photo>());
+
         mPhotosListView = (RecyclerView) this.findViewById(R.id.album_detail_photos);
         mPhotosListView.setLayoutManager(mLayoutManager);
         mPhotosListView.setAdapter(mAdapter);
@@ -122,12 +147,19 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
 
-        Log.d("CMPE137", "onPause");
-//        mAdapter.clear();
+    public Bitmap getBitmapFromMemCache(String key) {
+        return mMemoryCache.get(key);
+    }
+
+    @Override
+    public boolean onNavigateUp() {
+        return super.onNavigateUp();
     }
 
     @Override
@@ -138,22 +170,25 @@ public class AlbumDetailActivity extends AppCompatActivity {
         mAdapter.clear();
     }
 
-    private class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder>
-            implements BitmapDownloader.OnBitmapDownloadedListenner<PhotosAdapter.ViewHolder> {
+    private class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder> {
 
         private List<Photo> mPhotos;
         private List<Integer> mSelectedPositions;
-        private BitmapDownloader<ViewHolder> mBitmapDownloader;
 
         public class ViewHolder extends RecyclerView.ViewHolder
                 implements View.OnClickListener, View.OnLongClickListener {
 
+            public LinearLayout mPhotoLayout;
             public ImageView mImageView;
 
             public ViewHolder(View itemView) {
                 super(itemView);
 
+                mPhotoLayout = (LinearLayout) itemView.findViewById(R.id.photo_layout);
                 mImageView = (ImageView) itemView.findViewById(R.id.photo);
+
+                mPhotoLayout.setOnClickListener(this);
+                mPhotoLayout.setOnLongClickListener(this);
             }
 
             @Override
@@ -190,11 +225,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
         public PhotosAdapter(List<Photo> mPhotos) {
             this.mPhotos = mPhotos;
             mSelectedPositions = new ArrayList<>();
-
-//            mBitmapDownloader = new BitmapDownloader<>(new Handler());
-//            mBitmapDownloader.setOnBitmapDownloadedListenner(this);
-//            mBitmapDownloader.start();
-//            mBitmapDownloader.getLooper();
         }
 
         @Override
@@ -208,40 +238,50 @@ public class AlbumDetailActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
-            holder.mImageView.setImageBitmap(image);
-        }
-
-        @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             final Photo photo = mPhotos.get(position);
-//            String url = photo.getImage().getUrl();
-//            mBitmapDownloader.queueUrl(holder, url);
-            mPhotos.get(position).getImage().getDataInBackground(new GetDataCallback() {
-                @Override
-                public void done(byte[] data, ParseException e) {
-                    if (e == null) {
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
-                        int imageWidth = holder.mImageView.getWidth();
-                        int imageHeight = holder.mImageView.getHeight();
+            holder.mPhotoLayout.setActivated(mSelectedPositions.contains(position));
+            final Bitmap bitmap = getBitmapFromMemCache(photo.getObjectId());
+            if(bitmap != null) {
+                holder.mImageView.setImageBitmap(bitmap);
+            } else {
+                photo.getImage().getDataInBackground(new GetDataCallback() {
+                    @Override
+                    public void done(byte[] data, ParseException e) {
+                        if (e == null) {
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
-                        int sampleSize = Utils.calculateInSampleSize(options, imageWidth, imageHeight);
+                            int imageWidth = holder.mImageView.getWidth();
+                            int imageHeight = holder.mImageView.getHeight();
 
-                        options.inJustDecodeBounds = false;
-                        options.inSampleSize = sampleSize;
-                        Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+                            int sampleSize = Utils.calculateInSampleSize(options, imageWidth, imageHeight);
 
-                        holder.mImageView.setImageBitmap(image);
+                            options.inJustDecodeBounds = false;
+                            options.inSampleSize = sampleSize;
+                            Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+
+                            addBitmapToMemoryCache(photo.getObjectId(), image);
+
+                            holder.mImageView.setImageBitmap(image);
+                        }
                     }
-                }
-            });
+                });
+            }
+
         }
 
         public void clear() {
+            for(int i=0; i < mPhotos.size(); i++)
+                mPhotos.set(i, null);
             mPhotos.clear();
+            mSelectedPositions.clear();
+        }
+
+        public void clearSelected() {
+            mSelectedPositions.clear();
         }
 
         @Override
