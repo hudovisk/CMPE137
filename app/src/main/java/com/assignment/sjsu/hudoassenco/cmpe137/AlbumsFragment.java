@@ -1,14 +1,14 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.content.Intent;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.util.Size;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,22 +20,26 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.nio.channels.SelectableChannel;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 public class AlbumsFragment extends Fragment {
 
     private RecyclerView mAlbumsView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private OwnedAlbumsAdapter mAdapter;
+    private AlbumsAdapter mAdapter;
+
     private MenuItem mEditMenuItem;
 
     private ActionMode mActionMode;
@@ -51,12 +55,19 @@ public class AlbumsFragment extends Fragment {
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             if(mAdapter != null) {
-                if(mAdapter.getSelectedPositions().size() > 1) {
-                    menu.findItem(R.id.edit_album_action).setVisible(false);
-                } else {
-                    menu.findItem(R.id.edit_album_action).setVisible(true);
+                final List<Integer> selectedPositions = mAdapter.getSelectedPositions();
+                if(!selectedPositions.isEmpty()) {
+                    final List<Album> albuns = mAdapter.getAlbums();
+                    if(selectedPositions.size() > 1) {
+                        menu.findItem(R.id.edit_album_action).setVisible(false);
+                    } else {
+                        String authorId = albuns.get(selectedPositions.get(0)).getAuthor().getObjectId();
+                        if(authorId.equals(ParseUser.getCurrentUser().getObjectId())){
+                            menu.findItem(R.id.edit_album_action).setVisible(true);
+                        }
+                    }
+                    return true;
                 }
-                return true;
             }
             return false;
         }
@@ -72,11 +83,13 @@ public class AlbumsFragment extends Fragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
+            mAdapter.clearSelected();
+            mAdapter.notifyDataSetChanged();
         }
     };
 
     public AlbumsFragment() {
-        mAdapter = new OwnedAlbumsAdapter(new ArrayList<Album>());
+        mAdapter = new AlbumsAdapter(new ArrayList<Album>());
     }
 
     @Override
@@ -97,14 +110,23 @@ public class AlbumsFragment extends Fragment {
         mAlbumsView.setAdapter(mAdapter);
 
         // query for list of albums from the current user
+        ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
+        ParseQuery<Album> queryCollaborator = ParseQuery.getQuery("Album");
 
-        ParseQuery<Album> query = ParseQuery.getQuery("Album");
-        query.whereEqualTo("author", ParseUser.getCurrentUser());
-        query.findInBackground(new FindCallback<Album>() {
-            public void done(List<Album> albums, ParseException e) {
+        queryAuthor.whereEqualTo("author", ParseUser.getCurrentUser());
+        queryCollaborator.whereEqualTo("collaborators", ParseUser.getCurrentUser());
+
+        List<ParseQuery<Album>> queries = new ArrayList<>();
+        queries.add(queryAuthor);
+        queries.add(queryCollaborator);
+
+        ParseQuery<Album> mainQuery = ParseQuery.or(queries);
+        mainQuery.orderByDescending("createdAt");
+        mainQuery.findInBackground(new FindCallback<Album>() {
+            public void done(List<Album> results, ParseException e) {
                 if(e == null) {
-                    mAdapter.setAlbums(albums);
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter.setAlbums(results);
+                    mAlbumsView.scrollToPosition(0);
                 }
             }
         });
@@ -112,30 +134,41 @@ public class AlbumsFragment extends Fragment {
         return rootView;
     }
 
-    private class OwnedAlbumsAdapter extends RecyclerView.Adapter<OwnedAlbumsAdapter.ViewHolder> {
+    private class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.ViewHolder>
+            implements BitmapDownloader.OnBitmapDownloadedListenner<AlbumsAdapter.ViewHolder> {
 
         private List<Album> mAlbums;
         private List<Integer> mSelectedPositions;
+        private BitmapDownloader<ViewHolder> mBitmapDownloader;
+
+        public void clearSelected() {
+            mSelectedPositions.clear();
+        }
 
         public class ViewHolder extends RecyclerView.ViewHolder
                 implements View.OnLongClickListener, View.OnClickListener {
 
             public RelativeLayout mAlbumLayout;
             public ImageView mThumbnailView;
+            public ImageView mAuthorPictureView;
+            public TextView mAuthorNameView;
             public TextView mAlbumNameView;
+            public TextView mNumberCollaboratorsView;
 
             public ViewHolder(View itemView) {
                 super(itemView);
-//                itemView.setOnLongClickListener(this);
+                itemView.setOnLongClickListener(this);
 
                 mAlbumLayout = (RelativeLayout) itemView.findViewById(R.id.album_layout);
                 mThumbnailView = (ImageView) itemView.findViewById(R.id.album_thumbnail);
-                mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name);
+                mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
+                mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
+                mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
+                mNumberCollaboratorsView = (TextView) itemView.findViewById(R.id.album_number_contributors);
 
-                mAlbumLayout.setOnLongClickListener(this);
                 mAlbumLayout.setOnClickListener(this);
+                mAlbumLayout.setOnLongClickListener(this);
             }
-
 
             @Override
             public boolean onLongClick(View v) {
@@ -143,6 +176,7 @@ public class AlbumsFragment extends Fragment {
                     mActionMode = getActivity().startActionMode(mActionModeCallback);
                     v.setActivated(true);
                     mSelectedPositions.add(getAdapterPosition());
+                    mActionMode.invalidate();
                     return true;
                 }
                 return false;
@@ -175,9 +209,14 @@ public class AlbumsFragment extends Fragment {
             }
         }
 
-        public OwnedAlbumsAdapter(List<Album> mAlbums) {
+        public AlbumsAdapter(List<Album> mAlbums) {
             this.mAlbums = mAlbums;
             mSelectedPositions = new ArrayList<>();
+
+            mBitmapDownloader = new BitmapDownloader<>(new Handler());
+            mBitmapDownloader.setOnBitmapDownloadedListenner(this);
+            mBitmapDownloader.start();
+            mBitmapDownloader.getLooper();
         }
 
             @Override
@@ -191,8 +230,55 @@ public class AlbumsFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mAlbumNameView.setText(mAlbums.get(position).getName());
+        public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
+            holder.mAuthorPictureView.setImageBitmap(image);
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder holder, int position) {
+            final Album album = mAlbums.get(position);
+
+            holder.mAlbumLayout.setActivated(mSelectedPositions.contains(position));
+
+            holder.mAlbumNameView.setText(album.getName());
+
+            String facebookId = null;
+            try {
+                facebookId = album.getAuthor().fetchIfNeeded().getString("facebookId");
+
+                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                GraphRequest request = GraphRequest.newGraphPathRequest(
+                        accessToken,
+                        "/"+facebookId,
+                        new GraphRequest.Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse response) {
+                                JSONObject result = response.getJSONObject();
+                                try {
+                                    String name = result.getString("name");
+                                    String pictureUrl = result.getJSONObject("picture")
+                                            .getJSONObject("data")
+                                            .getString("url");
+                                    holder.mAuthorNameView.setText(name);
+                                    holder.mNumberCollaboratorsView.setText(String.valueOf(album.getNumberOfCollaborators()));
+
+                                    int width = holder.mAuthorPictureView.getWidth();
+                                    int height = holder.mAuthorPictureView.getHeight();
+
+                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "name,picture");
+                request.setParameters(parameters);
+                request.executeAsync();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -216,5 +302,4 @@ public class AlbumsFragment extends Fragment {
             this.mSelectedPositions = selectedPositions;
         }
     }
-
 }
