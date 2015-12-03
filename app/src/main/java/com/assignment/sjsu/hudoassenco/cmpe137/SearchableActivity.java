@@ -100,6 +100,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             //TODO: Search
         } else {
             getAllAlbums();
+            //TODO: Seta flag
             if (Intent.ACTION_SEND.equals(action) && type != null) {
                 if (type.startsWith("image/")) {
                     handleSendImage(intent); // Handle single image being sent
@@ -178,7 +179,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             holder.mAuthorPictureView.setImageBitmap(image);
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder {
+        public class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener {
 
             public ImageView mAuthorPictureView;
             public TextView mAuthorNameView;
@@ -187,11 +188,19 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
 
             public ViewHolder(View itemView) {
                 super(itemView);
+                itemView.setOnClickListener(this);
 
                 mAuthorPictureView = (ImageView) itemView.findViewById(R.id.album_profile_pic);
                 mAuthorNameView = (TextView) itemView.findViewById(R.id.album_author_view);
                 mAlbumNameView = (TextView) itemView.findViewById(R.id.album_name_view);
                 mNumberCollaboratorsView = (TextView) itemView.findViewById(R.id.album_number_contributors);
+            }
+
+            @Override
+            public void onClick(View v) {
+                //TODO: Check flag
+                final Album album = mAlbums.get(getAdapterPosition());
+
             }
         }
 
