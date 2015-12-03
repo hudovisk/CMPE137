@@ -19,19 +19,25 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
     private ImageView mProfilePictureView;
     private TextView mProfileNameView;
     private Button mLogoutButton;
+    private TextView mAlbumNumber;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +51,7 @@ public class ProfileFragment extends Fragment {
 
         mProfilePictureView = (ImageView) rootView.findViewById(R.id.profile_picture);
         mProfileNameView = (TextView) rootView.findViewById(R.id.profile_name);
-
+        mAlbumNumber = (TextView) rootView.findViewById(R.id.profile_albums_number);
         mLogoutButton = (Button) rootView.findViewById(R.id.profile_logout_bt);
         mLogoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,6 +65,26 @@ public class ProfileFragment extends Fragment {
 
         ParseUser user = ParseUser.getCurrentUser();
 //        mProfileNameView.setText(user.getString("name"));
+
+
+        ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
+        ParseQuery<Album> queryCollaborator = ParseQuery.getQuery("Album");
+
+        queryAuthor.whereEqualTo("author", ParseUser.getCurrentUser());
+        queryCollaborator.whereEqualTo("collaborators", ParseUser.getCurrentUser());
+
+        List<ParseQuery<Album>> queries = new ArrayList<>();
+        queries.add(queryAuthor);
+        queries.add(queryCollaborator);
+
+        ParseQuery<Album> mainQuery = ParseQuery.or(queries);
+        mainQuery.findInBackground(new FindCallback<Album>() {
+            public void done(List<Album> scoreList, ParseException e) {
+                if (e == null) {
+                    mAlbumNumber.setText(String.valueOf(scoreList.size()));
+                }
+            }
+        });
 
         if(ParseFacebookUtils.isLinked(user)) {
             AccessToken accessToken = AccessToken.getCurrentAccessToken();

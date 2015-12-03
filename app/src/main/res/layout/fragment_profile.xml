@@ -38,14 +38,36 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:background="#555555"/>
+    <TextView
+        android:id="@+id/profile_albums_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:paddingTop="50dp"
+        android:text="8"
+        android:textSize="50dp"
+        />
+    <TextView
+        android:id="@+id/profile_albums_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:layout_gravity="center"
+        android:paddingTop="10dp"
+        android:text="Albums"
+        android:textSize="30dp"
+        />
 
     <Button
         android:id="@+id/profile_logout_bt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
-        android:drawableLeft="@drawable/ic_power_settings_new_black_24dp"
-        android:textAlignment="textStart"
-        android:text="     Logout" /> <!-- TODO: Fix this gambiarra -->
+
+        android:drawableBottom="@drawable/ic_power_settings_new_black_24dp"
+        android:layout_marginTop="80dp"
+        android:paddingTop="10dp"></Button>
+
 
 </LinearLayout>
