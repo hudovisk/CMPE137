@@ -46,7 +46,7 @@ public class CollaboratorsAdapter extends RecyclerView.Adapter<CollaboratorsAdap
         int width = holder.mPicture.getWidth();
         int height = holder.mPicture.getHeight();
 
-        mBitmapDownloader.queueUrl(holder, collaborator.mPictureUrl, new Size(width, height));
+        mBitmapDownloader.queueUrl(holder, collaborator.mPictureUrl, null);
     }
 
     @Override

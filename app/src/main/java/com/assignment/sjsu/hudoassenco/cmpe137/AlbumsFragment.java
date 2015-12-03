@@ -2,7 +2,6 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -47,7 +46,7 @@ public class AlbumsFragment extends Fragment {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater menuInflater = mode.getMenuInflater();
-            menuInflater.inflate(R.menu.contextual_owned_album_menu, menu);
+            menuInflater.inflate(R.menu.contextual_album_menu, menu);
 
             return true;
         }
@@ -100,9 +99,9 @@ public class AlbumsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_shared_albums, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_albums, container, false);
 
-        mAlbumsView = (RecyclerView) rootView.findViewById(R.id.shared_albums_view);
+        mAlbumsView = (RecyclerView) rootView.findViewById(R.id.albums_view);
         mLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
 
         mAlbumsView.setHasFixedSize(true);

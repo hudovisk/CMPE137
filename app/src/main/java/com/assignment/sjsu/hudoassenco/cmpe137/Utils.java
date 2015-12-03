@@ -1,6 +1,12 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.net.Uri;
+import android.provider.MediaStore;
 
 public class Utils {
 
@@ -62,6 +68,25 @@ public class Utils {
         }
 
         return inSampleSize;
+    }
+
+    public static int getGalleryImageRotation(Context context, Uri photoUri) {
+    /* it's on the external media. */
+        Cursor cursor = context.getContentResolver().query(photoUri,
+                new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
+
+        if (cursor.getCount() != 1) {
+            return -1;
+        }
+
+        cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
+
+    public static Bitmap rotateBitmap(final Bitmap bitmap, float degree) {
+        Matrix rotationMatrix = new Matrix();
+        rotationMatrix.postRotate(degree);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), rotationMatrix, true);
     }
 
 }

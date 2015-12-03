@@ -12,8 +12,8 @@ public class Feed extends ParseObject {
 
     public void setAuthor (ParseUser user){
         put("author",user );
-
     }
+
     public  void setAlbum (Album album){
         put("album", album);
     }

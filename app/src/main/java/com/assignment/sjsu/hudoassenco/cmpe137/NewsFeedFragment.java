@@ -2,19 +2,15 @@ package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
-import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Size;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,23 +22,21 @@ import com.facebook.GraphResponse;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 public class NewsFeedFragment extends Fragment {
 
     private RecyclerView mNewsFeedView;
     private RecyclerView.LayoutManager mLayoutManager;
-    private NewsFeedAdapter mLadapter;
+    private NewsFeedAdapter mAdapter;
 
     public NewsFeedFragment() {
-        mLadapter = new NewsFeedAdapter(new ArrayList<Feed>());
+        mAdapter = new NewsFeedAdapter(new ArrayList<Feed>());
     }
 
     @Override
@@ -53,21 +47,20 @@ public class NewsFeedFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext());
 
 
-        //TODO: Back end to query the news feed (Author id, picture link, etc..
+        mNewsFeedView.setHasFixedSize(true);
+        mNewsFeedView.setLayoutManager(mLayoutManager);
+        mNewsFeedView.setAdapter(mAdapter);
 
-        ParseQuery<Feed> query = ParseQuery.getQuery("Album");
+        ParseQuery<Feed> query = ParseQuery.getQuery("Feed");
 
         query.findInBackground(new FindCallback<Feed>() {
             public void done(List<Feed> feeds, ParseException e) {
-                if(e == null) {
-                    mLadapter.setmFeeds(feeds);
+                if (e == null) {
+                    mAdapter.setFeeds(feeds);
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         });
-
-        mNewsFeedView.setHasFixedSize(true);
-        mNewsFeedView.setLayoutManager(mLayoutManager);
-        mNewsFeedView.setAdapter(mLadapter);
 
         return rootView;
     }
@@ -81,12 +74,13 @@ public class NewsFeedFragment extends Fragment {
             return mFeeds;
         }
 
-        public void setmFeeds(List<Feed> mFeeds) {
+        public void setFeeds(List<Feed> mFeeds) {
             this.mFeeds = mFeeds;
         }
 
         public NewsFeedAdapter (List<Feed> feeds){
             this.mFeeds = feeds;
+
             mBitmapDownloader = new BitmapDownloader<>(new Handler());
             mBitmapDownloader.setOnBitmapDownloadedListenner(this);
             mBitmapDownloader.start();
@@ -170,8 +164,11 @@ public class NewsFeedFragment extends Fragment {
                                             .getJSONObject("data")
                                             .getString("url");
                                     holder.mAuthorNameView.setText(name);
-//                                    holder.mNumberCollaboratorsView.setText(String.valueOf(album.getNumberOfCollaborators()));
-                                    mBitmapDownloader.queueUrl(holder, pictureUrl);
+
+                                    int width = holder.mProfilePictureView.getWidth();
+                                    int height = holder.mProfilePictureView.getHeight();
+
+                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width, height));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

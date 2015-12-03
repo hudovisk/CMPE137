@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -43,6 +46,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -254,12 +258,14 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                 mCountPhotos = mImageUris.size();
                 if (mSendPhoto){
                     mProgressDialog.show();
-                    for(int i=0; i < mImageUris.size() ; i++){
+                    for(Uri imageUri : mImageUris){
                         try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(SearchableActivity.this.getContentResolver(), mImageUris.get(i));
+                            final Bitmap bitmap = MediaStore.Images.Media.getBitmap(SearchableActivity.this.getContentResolver(), imageUri);
+
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 20, stream);
-                            byte[] data = stream.toByteArray();
+                            final byte[] data = stream.toByteArray();
+
                             ParseFile file = new ParseFile("teste.jpg", data);
 
                             file.saveInBackground(new SaveCallback() {

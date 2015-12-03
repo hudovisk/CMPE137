@@ -9,9 +9,9 @@
     <ImageView
         android:id="@+id/collaborator_item_picture"
         android:src="@android:drawable/sym_def_app_icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_margin="8dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="16dp"
         />
 
     <TextView
@@ -20,13 +20,14 @@
         android:layout_height="wrap_content"
         android:text="Name"
         android:layout_toRightOf="@id/collaborator_item_picture"
-        android:paddingTop="8dp"
-        android:textSize="20sp"/>
+        android:paddingTop="20dp"
+        android:textSize="16sp"/>
 
     <ImageButton
         android:id="@+id/collaborator_item_remove_bt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingTop="8dp"
         android:layout_margin="8dp"
         android:layout_alignBaseline="@id/collaborator_item_picture"
         android:layout_alignParentRight="true"

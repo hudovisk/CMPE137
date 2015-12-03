@@ -16,6 +16,7 @@ public class ParseApplication extends Application {
         ParseObject.registerSubclass(Album.class);
         ParseObject.registerSubclass(Photo.class);
         ParseObject.registerSubclass(Comment.class);
+        ParseObject.registerSubclass(Feed.class);
 
         Parse.enableLocalDatastore(this);
         Parse.initialize(this, "JKF0NbqkkyhUFhelLkqQhjbUMeMeqveLPwfcpbvv", "90ig345UBcaoriqawpM7iYfrnRueWqNlLYYGL70C");
