@@ -1,11 +1,15 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,12 +28,20 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.ProgressCallback;
+import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +52,18 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
     private RecyclerView.LayoutManager mLayoutManager;
     private SearchResultAdapter mAdapter;
     private List<Album> mAllAlbums;
+    private ArrayList<Uri> mImageUris;
+    private boolean mSendPhoto;
+    private ProgressDialog mProgressDialog;
+    private int mCountPhotos;
+
 
     public SearchableActivity() {
         mAllAlbums = new ArrayList<>();
         mAdapter = new SearchResultAdapter(mAllAlbums);
         mAdapter.setHasStableIds(true);
+        mImageUris = new ArrayList<Uri>();
+        mSendPhoto = false;
     }
 
     @Override
@@ -61,6 +80,10 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
 
         mResultsView.setLayoutManager(mLayoutManager);
         mResultsView.setAdapter(mAdapter);
+
+        mProgressDialog = new ProgressDialog(SearchableActivity.this, R.style.AppTheme_Dialog);
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setMessage(getString(R.string.login_progress));
 
         Intent intent = getIntent();
         handleIntent(intent);
@@ -101,6 +124,8 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
         } else {
             getAllAlbums();
             //TODO: Seta flag
+            mSendPhoto = true;
+
             if (Intent.ACTION_SEND.equals(action) && type != null) {
                 if (type.startsWith("image/")) {
                     handleSendImage(intent); // Handle single image being sent
@@ -113,6 +138,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
         }
 
     }
+
 
     private void getAllAlbums() {
         ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
@@ -136,12 +162,36 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
     }
 
     private void handleSendMultipleImages(Intent intent) {
+        mImageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (mImageUris != null) {
+            // Update UI to reflect multiple images being shared
 
+        }
     }
 
-    private void handleSendImage(Intent intent) {
-
+    private void handleSendImage(Intent intent)  {
+        mImageUris.add((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+//        if(imageUri != null){
+//            try {
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+//                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//                byte[] data = stream.toByteArray();
+//                ParseFile file = new ParseFile("teste.jpg", data);
+//                file.saveInBackground();
+//
+//                ParseObject photo = new ParseObject("Photo");
+//                photo.put("image", file);
+//                photo.saveInBackground();
+//
+//
+//            }catch (IOException e){
+//                e.printStackTrace();
+//            }
+//
+//        }
     }
+
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -200,6 +250,48 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
             public void onClick(View v) {
                 //TODO: Check flag
                 final Album album = mAlbums.get(getAdapterPosition());
+                mCountPhotos = mImageUris.size();
+                if (mSendPhoto){
+                    mProgressDialog.show();
+                    for(int i=0; i < mImageUris.size() ; i++){
+                        try {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(SearchableActivity.this.getContentResolver(), mImageUris.get(i));
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                            byte[] data = stream.toByteArray();
+                            ParseFile file = new ParseFile("teste.jpg", data);
+
+                            file.saveInBackground(new SaveCallback() {
+                                public void done(ParseException e) {
+                                    // Handle success or failure here ...
+                                    mCountPhotos--;
+                                    if(mCountPhotos==0){
+                                        mProgressDialog.dismiss();
+                                    }
+                                }
+                            }, new ProgressCallback() {
+                                public void done(Integer percentDone) {
+                                    // Update your progress spinner here. percentDone will be between 0 and 100.
+                                }
+                            });
+
+                            ParseObject photo = new ParseObject("Photo");
+                            photo.put("image", file);
+                            photo.put("originAlbum", album);
+                            photo.put("author",ParseUser.getCurrentUser());
+                            photo.saveInBackground();
+
+
+                        }catch (IOException e){
+                            e.printStackTrace();
+                        }
+                        mSendPhoto = false;
+
+                    }
+
+                }else{
+                    //TODO: Go to album gallery
+                }
 
             }
         }
