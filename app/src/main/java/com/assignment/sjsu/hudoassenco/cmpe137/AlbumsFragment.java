@@ -28,6 +28,7 @@ import com.facebook.GraphResponse;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -78,8 +79,51 @@ public class AlbumsFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.delete_album_action:
+                    Album album = new Album();
+                    int position;
+                    for(int i=0; i< mAdapter.getAlbums().size() ; i++) {
+                        position = mAdapter.getSelectedPositions().get(i);
+                        album = mAdapter.getAlbums().get(position);
 
+                        if (album.getAuthor() == ParseUser.getCurrentUser()) { //user is the owner of the album
+                            ParseQuery<Photo> query = ParseQuery.getQuery(Photo.class);
+                            query.whereEqualTo("originAlbum", album);
+                            query.findInBackground(new FindCallback<Photo>() {
+                                public void done(List<Photo> results, ParseException e) {
+                                    if (e == null) {
+                                        for (int i = 0; i < results.size(); i++) {
+                                            results.get(i).deleteInBackground();
+                                        }
+                                    }
+                                }
+                            });
+                            ParseQuery<Feed> queryFeed = ParseQuery.getQuery(Feed.class);
+                            queryFeed.whereEqualTo("album", album);
+                            queryFeed.findInBackground(new FindCallback<Feed>() {
+                                public void done(List<Feed> results, ParseException e) {
+                                    if (e == null) {
+                                        for (int i = 0; i < results.size(); i++) {
+
+                                            results.get(i).deleteInBackground();
+                                        }
+                                    }
+                                }
+                            });
+                            album.deleteInBackground();
+                            mAdapter.getAlbums().remove(position);
+                            mActionMode.finish();
+                        }else{ //user is a collaborator
+                            ParseRelation<ParseUser> relation = album.getRelation("collaborators");
+                            relation.remove(ParseUser.getCurrentUser());
+                            album.decrementNumberOfCollaborators();
+                            album.saveInBackground();
+                            mActionMode.finish();
+                        }
+
+                    }
                     return true;
+
+
                 default:
                     return false;
             }
