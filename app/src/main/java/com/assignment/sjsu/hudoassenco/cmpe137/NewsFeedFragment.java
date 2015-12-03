@@ -64,7 +64,7 @@ public class NewsFeedFragment extends Fragment {
     public void onStart() {
         super.onStart();
         ParseQuery<Feed> query = ParseQuery.getQuery("Feed");
-
+        query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<Feed>() {
             public void done(List<Feed> feeds, ParseException e) {
                 if (e == null) {
