@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.search_action_option_menu: {
                 Intent intent = new Intent(getApplicationContext(), SearchableActivity.class);
+                intent.setAction(Intent.ACTION_SEARCH);
                 startActivity(intent);
 
                 return true;

@@ -79,12 +79,12 @@ public class AlbumsFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.delete_album_action:
-                    Album album = new Album();
-                    int position;
-                    for(int i=0; i< mAdapter.getAlbums().size() ; i++) {
-                        position = mAdapter.getSelectedPositions().get(i);
-                        album = mAdapter.getAlbums().get(position);
-
+                    List<Album> selectedAlbums = new ArrayList<>();
+                    for(Integer position : mAdapter.getSelectedPositions()) {
+                        selectedAlbums.add(mAdapter.getAlbums().get(position));
+                    }
+                    for(final Album album : selectedAlbums) {
+//                        final Album album = mAdapter.getAlbums().get(position);
                         if (album.getAuthor() == ParseUser.getCurrentUser()) { //user is the owner of the album
                             ParseQuery<Photo> query = ParseQuery.getQuery(Photo.class);
                             query.whereEqualTo("originAlbum", album);
@@ -110,20 +110,17 @@ public class AlbumsFragment extends Fragment {
                                 }
                             });
                             album.deleteInBackground();
-                            mAdapter.getAlbums().remove(position);
-                            mActionMode.finish();
                         }else{ //user is a collaborator
                             ParseRelation<ParseUser> relation = album.getRelation("collaborators");
                             relation.remove(ParseUser.getCurrentUser());
                             album.decrementNumberOfCollaborators();
                             album.saveInBackground();
-                            mActionMode.finish();
                         }
-
                     }
+                    mAdapter.getAlbums().removeAll(selectedAlbums);
+                    mAdapter.notifyDataSetChanged();
+                    mActionMode.finish();
                     return true;
-
-
                 default:
                     return false;
             }
@@ -166,6 +163,10 @@ public class AlbumsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        getAllAlbums();
+    }
+
+    private void getAllAlbums() {
         // query for list of albums from the current user
         ParseQuery<Album> queryAuthor = ParseQuery.getQuery("Album");
         ParseQuery<Album> queryCollaborator = ParseQuery.getQuery("Album");
@@ -183,7 +184,7 @@ public class AlbumsFragment extends Fragment {
             public void done(List<Album> results, ParseException e) {
                 if(e == null) {
                     mAdapter.setAlbums(results);
-                    mAlbumsView.scrollToPosition(0);
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         });

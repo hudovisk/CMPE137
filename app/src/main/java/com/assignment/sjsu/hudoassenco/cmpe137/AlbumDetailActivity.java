@@ -28,6 +28,7 @@ import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -37,6 +38,9 @@ import java.util.List;
  * Created by hudoassenco on 12/2/15.
  */
 public class AlbumDetailActivity extends AppCompatActivity {
+
+    public static final String ALBUM_ID_EXTRA = "id";
+    public static final String ALBUM_NAME_EXTRA = "name";
 
     private RecyclerView mPhotosListView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -115,9 +119,9 @@ public class AlbumDetailActivity extends AppCompatActivity {
         mPhotosListView.setAdapter(mAdapter);
 
         Intent intent = getIntent();
-        String albumId = intent.getStringExtra("id");
+        String albumId = intent.getStringExtra(ALBUM_ID_EXTRA);
         if(!albumId.isEmpty()) {
-            String name = intent.getStringExtra("name");
+            String name = intent.getStringExtra(ALBUM_NAME_EXTRA);
             getSupportActionBar().setTitle(name);
 
             ParseQuery<Album> query = ParseQuery.getQuery(Album.class);
@@ -204,7 +208,10 @@ public class AlbumDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(mActionMode == null) {
-                    //TODO:Open Photo Detail Activity
+                    final Photo photo = mPhotos.get(getAdapterPosition());
+                    Intent intent = new Intent(AlbumDetailActivity.this, PhotoDetailActivity.class);
+                    intent.putExtra(PhotoDetailActivity.PHOTO_ID_EXTRA, photo.getObjectId());
+                    startActivity(intent);
                 } else {
                     Integer position = getAdapterPosition();
                     if(mSelectedPositions.contains(position)) {

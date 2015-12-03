@@ -14,6 +14,8 @@ import android.widget.TextView;
  */
 public class PhotoDetailActivity extends AppCompatActivity {
 
+    public static final String PHOTO_ID_EXTRA = "id";
+
     private ImageView mPictureView;
     private ImageButton mLikeBt;
     private ImageView mProfilePictureView;

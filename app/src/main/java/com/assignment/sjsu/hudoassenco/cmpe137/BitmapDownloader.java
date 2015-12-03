@@ -75,6 +75,9 @@ public class BitmapDownloader<T> extends HandlerThread {
 
     private void handleRequest(final T holder) {
         final Pair<String, Size> pair = mHolderMap.get(holder);
+        if(pair == null) {
+            return;
+        }
         final String url = pair.first;
         final Size size = pair.second;
         Log.v(TAG, "Downloading bitmap from url: "+url);

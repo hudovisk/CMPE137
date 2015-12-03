@@ -35,7 +35,7 @@
                     android:clickable="true"
                     android:text="New Album!"
                     android:textSize="16sp"
-                    android:textColor="@color/black"
+                    android:textStyle="bold"
                     />
                 <TextView
                     android:id="@+id/feed_album_name"
@@ -47,7 +47,6 @@
                     android:clickable="true"
                     android:text="Vacations in California 2015"
                     android:textSize="16sp"
-                    android:textColor="@color/link"
                     />
 
                 <TextView
@@ -70,7 +69,6 @@
                     android:layout_below="@id/feed_album_name"
                     android:clickable="true"
                     android:text="Jhon"
-                    android:textColor="@color/link"
                     android:textSize="14sp"
                     />
 

@@ -123,13 +123,12 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
     private void handleIntent(Intent intent) {
         String action = intent.getAction();
         String type = intent.getType();
+        getAllAlbums();
         if (Intent.ACTION_SEARCH.equals(action)) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d("CMPE137", "Query: " + query);
-            //TODO: Search
+            mSendPhoto = false;
         } else {
-            getAllAlbums();
-            //TODO: Seta flag
             mSendPhoto = true;
 
             if (Intent.ACTION_SEND.equals(action) && type != null) {
@@ -142,7 +141,6 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                 }
             }
         }
-
     }
 
 
@@ -302,7 +300,10 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
                     }
 
                 }else{
-                    //TODO: Go to album gallery
+                    Intent intent = new Intent(SearchableActivity.this, AlbumDetailActivity.class);
+                    intent.putExtra(AlbumDetailActivity.ALBUM_ID_EXTRA, album.getObjectId());
+                    intent.putExtra(AlbumDetailActivity.ALBUM_NAME_EXTRA, album.getName());
+                    startActivity(intent);
                 }
 
             }

@@ -51,6 +51,18 @@ public class NewsFeedFragment extends Fragment {
         mNewsFeedView.setLayoutManager(mLayoutManager);
         mNewsFeedView.setAdapter(mAdapter);
 
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         ParseQuery<Feed> query = ParseQuery.getQuery("Feed");
 
         query.findInBackground(new FindCallback<Feed>() {
@@ -61,8 +73,6 @@ public class NewsFeedFragment extends Fragment {
                 }
             }
         });
-
-        return rootView;
     }
 
     private class NewsFeedAdapter extends RecyclerView.Adapter<NewsFeedAdapter.ViewHolder> implements BitmapDownloader.OnBitmapDownloadedListenner<NewsFeedAdapter.ViewHolder> {
@@ -92,15 +102,12 @@ public class NewsFeedFragment extends Fragment {
             holder.mProfilePictureView.setImageBitmap(image);
         }
 
-        public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public class ViewHolder extends RecyclerView.ViewHolder {
 
             public ImageView mProfilePictureView;
             public TextView mAlbumNameView;
             public TextView mAuthorNameView;
             public TextView mPlacePictureView;
-
-
-
 
             public ViewHolder(View rootView) {
                 super(rootView);
@@ -108,24 +115,6 @@ public class NewsFeedFragment extends Fragment {
                 mProfilePictureView = (ImageView) rootView.findViewById(R.id.feed_profile_picture);
                 mAlbumNameView = (TextView) rootView.findViewById(R.id.feed_album_name);
                 mAuthorNameView = (TextView) rootView.findViewById(R.id.feed_author_name);
-                //mPlacePictureView = (TextView) rootView.findViewById(R.id.feed_place_picture);
-
-
-
-
-            }
-
-            @Override
-            public void onClick(View v) {
-//                if(v.equals(mPictureView)) {
-//                    //TODO: Pass a photo identifier to PhotoDetailActivity to query more information.
-//                    ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
-//                            Pair.create((View) mPictureView, "pictureView"),
-//                            Pair.create((View) mProfilePictureView, "profilePictureView"));
-////                            Pair.create((View) mDescriptionView, "descriptionView"));
-//                    Intent intent = new Intent(getContext(), PhotoDetailActivity.class);
-//                    getActivity().startActivity(intent, optionsCompat.toBundle());
-//                }
             }
         }
 
