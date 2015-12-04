@@ -257,7 +257,7 @@ public class NewAlbumActivity extends AppCompatActivity {
                     mAlbumToEdit.saveInBackground();
 
                     Context context = getApplicationContext();
-                    CharSequence text = "New Album Created";
+                    CharSequence text = "Album edited";
                     int duration = Toast.LENGTH_SHORT;
 
                     Toast toast = Toast.makeText(context, text, duration);

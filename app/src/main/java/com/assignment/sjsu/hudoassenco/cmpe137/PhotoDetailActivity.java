@@ -106,6 +106,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         });
         ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
         query.whereEqualTo("originPhoto", mPhoto);
+        query.orderByDescending("createdAt");
         query.findInBackground(new FindCallback<Comment>() {
             public void done(List<Comment> scoreList, ParseException e) {
                 if (e == null) {

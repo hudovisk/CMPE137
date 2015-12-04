@@ -1,5 +1,6 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -71,9 +73,41 @@ public class AlbumDetailActivity extends AppCompatActivity {
                     for(Integer position : mAdapter.getSelectedPositions()) {
                         selectedPhotos.add(mAdapter.getPhotos().get(position));
                     }
-                    for(final Photo photo : selectedPhotos) {
+                    for(int i=0; i < selectedPhotos.size(); i++) {
+                        final Photo photo = selectedPhotos.get(i);
                         //TODO: Remove photo
+                        if(photo.getAuthor() == ParseUser.getCurrentUser()){
+                            ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+                            query.whereEqualTo("originPhoto", photo);
+                            query.findInBackground(new FindCallback<Comment>() {
+                                public void done(List<Comment> results, ParseException e) {
+                                    if (e == null) {
+                                        for (int i = 0; i < results.size(); i++) {
+                                            results.get(i).deleteInBackground();
+                                        }
+                                    }
+                                }
+                            });
+                           photo.deleteInBackground();
+
+
+                            Context context = getApplicationContext();
+                            CharSequence text = selectedPhotos.size()+" photos deleted";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }else{
+                            selectedPhotos.remove(i);
+                            Context context = getApplicationContext();
+                            CharSequence text = "You can't delete photos from other users";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.show();
+                        }
                     }
+
                     mAdapter.getPhotos().removeAll(selectedPhotos);
                     mAdapter.notifyDataSetChanged();
                     mActionMode.finish();
