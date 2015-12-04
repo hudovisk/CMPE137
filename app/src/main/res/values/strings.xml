@@ -38,5 +38,12 @@
     <string name="edit_album">Edit Album</string>
     <string name="delete_album">Delete Album</string>
     <string name="album_by">by</string>
+    <string name="error_invalid_name">Invalid Name</string>
+    <string name="error_invalid_name_number">Number not allowed</string>
+    <string name="error_invalid_password_upper_case">Password must have at least one upper case letter</string>
+    <string name="error_invalid_password_lower_case" >Password must have at least one lower case letter</string>
+    <string name="error_invalid_password_number" >Password must have at least one number</string>
+    <string name="error_invalid_password_special_char" >Password must have at least one special character</string>
+    <string name="send_progress">Sending…</string>
 
 </resources>

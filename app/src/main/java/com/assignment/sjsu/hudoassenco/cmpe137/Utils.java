@@ -8,7 +8,14 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import java.util.regex.Pattern;
+
 public class Utils {
+
+    private static final Pattern hasUppercase = Pattern.compile("[A-Z]");
+    private static final Pattern hasLowercase = Pattern.compile("[a-z]");
+    private static final Pattern hasNumber = Pattern.compile("\\d");
+    private static final Pattern hasSpecialChar = Pattern.compile("[^a-zA-Z0-9 ]");
 
     public static class ValidationResult {
         public boolean mValid;
@@ -21,17 +28,23 @@ public class Utils {
     }
 
     public static ValidationResult isPasswordValid(String password) {
-        //TODO: Proper password validation logic.
         if(password.isEmpty()) {
             return new ValidationResult(false, R.string.error_invalid_password);
+        } else if(!hasUppercase.matcher(password).find()) {
+            return new ValidationResult(false, R.string.error_invalid_password_upper_case);
+        } else if(!hasLowercase.matcher(password).find()) {
+            return new ValidationResult(false, R.string.error_invalid_password_lower_case);
+        } else if(!hasNumber.matcher(password).find()) {
+            return new ValidationResult(false, R.string.error_invalid_password_number);
+        }  else if(!hasSpecialChar.matcher(password).find()) {
+            return new ValidationResult(false, R.string.error_invalid_password_special_char);
         } else {
             return new ValidationResult(true, 0);
         }
     }
 
     public static ValidationResult isEmailValid(String email) {
-        //TODO: Proper email validation logic.
-        if(email.isEmpty()) {
+        if(android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             return new ValidationResult(false, R.string.error_invalid_email);
         } else {
             return new ValidationResult(true, 0);
@@ -39,9 +52,10 @@ public class Utils {
     }
 
     public static ValidationResult isNameValid(String name) {
-        //TODO: Proper mName validation logic.
         if(name.isEmpty()) {
-            return new ValidationResult(false, R.string.error_invalid_password);
+            return new ValidationResult(false, R.string.error_invalid_name);
+        } else if(name.matches(".*\\d+.*")) {
+            return new ValidationResult(false, R.string.error_invalid_name_number);
         } else {
             return new ValidationResult(true, 0);
         }

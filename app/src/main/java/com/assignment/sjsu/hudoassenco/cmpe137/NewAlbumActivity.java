@@ -166,12 +166,12 @@ public class NewAlbumActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        if (intent.getStringExtra("id").length()!=0){
+        final String albumId = intent.getStringExtra("id");
+        if (albumId != null){
             // Edit album activity
             mNewAlbum = false;
             getSupportActionBar().setTitle("Edit Album");
 
-            String albumId = intent.getStringExtra("id");
             ParseQuery<Album> query = ParseQuery.getQuery(Album.class);
             query.whereEqualTo("objectId", albumId);
             query.findInBackground(new FindCallback<Album>() {

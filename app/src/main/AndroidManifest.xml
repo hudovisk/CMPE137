@@ -41,7 +41,7 @@
         </activity>
         <activity
             android:name=".PhotoDetailActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".AlbumDetailActivity"
             android:theme="@style/AppTheme.NoActionBar"

@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.LruCache;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,10 +54,29 @@ public class PhotoDetailActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private CommentAdapter mAdapter;
 
+    private LruCache<String, Bitmap> mMemoryCache;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_photo_detail);
+
+        // Get max available VM memory, exceeding this amount will throw an
+        // OutOfMemory exception. Stored in kilobytes as LruCache takes an
+        // int in its constructor.
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+
+        // Use 1/8th of the available memory for this memory cache.
+        final int cacheSize = maxMemory / 8;
+
+        mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
 
         mPictureView = (ImageView) findViewById(R.id.photo_detail_photo);
         mCommentEditText = (EditText) findViewById(R.id.photo_detail_comment_box);
@@ -97,13 +117,30 @@ public class PhotoDetailActivity extends AppCompatActivity {
         }
     }
 
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        return mMemoryCache.get(key);
+    }
+
     private void bindPhotoInfo() {
-        mPhoto.getImage().getDataInBackground(new GetDataCallback() {
-            @Override
-            public void done(byte[] data, ParseException e) {
-                mPictureView.setImageBitmap(BitmapFactory.decodeByteArray(data, 0, data.length));
-            }
-        });
+        Bitmap image = getBitmapFromMemCache(mPhoto.getObjectId());
+        if(image == null) {
+            mPhoto.getImage().getDataInBackground(new GetDataCallback() {
+                @Override
+                public void done(byte[] data, ParseException e) {
+                    Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    addBitmapToMemoryCache(mPhoto.getObjectId(), image);
+                    mPictureView.setImageBitmap(image);
+                }
+            });
+        } else {
+            mPictureView.setImageBitmap(image);
+        }
         ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
         query.whereEqualTo("originPhoto", mPhoto);
         query.orderByDescending("createdAt");
@@ -176,38 +213,43 @@ public class PhotoDetailActivity extends AppCompatActivity {
             final Comment comment = mComments.get(position);
 
             holder.mCommentTextView.setText(comment.getText());
-            String facebookId = null;
+            final String facebookId;
             try {
                 facebookId = comment.getAuthor().fetchIfNeeded().getString("facebookId");
+                Bitmap image = getBitmapFromMemCache(facebookId);
+                if(image == null) {
+                    AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                    GraphRequest request = GraphRequest.newGraphPathRequest(
+                            accessToken,
+                            "/"+facebookId,
+                            new GraphRequest.Callback() {
+                                @Override
+                                public void onCompleted(GraphResponse response) {
+                                    JSONObject result = response.getJSONObject();
+                                    try {
+                                        String name = result.getString("name");
+                                        String pictureUrl = result.getJSONObject("picture")
+                                                .getJSONObject("data")
+                                                .getString("url");
 
-                AccessToken accessToken = AccessToken.getCurrentAccessToken();
-                GraphRequest request = GraphRequest.newGraphPathRequest(
-                        accessToken,
-                        "/"+facebookId,
-                        new GraphRequest.Callback() {
-                            @Override
-                            public void onCompleted(GraphResponse response) {
-                                JSONObject result = response.getJSONObject();
-                                try {
-                                    String name = result.getString("name");
-                                    String pictureUrl = result.getJSONObject("picture")
-                                            .getJSONObject("data")
-                                            .getString("url");
+                                        int width = holder.mProfilePictureView.getWidth();
+                                        int height = holder.mProfilePictureView.getHeight();
 
-                                    int width = holder.mProfilePictureView.getWidth();
-                                    int height = holder.mProfilePictureView.getHeight();
-
-                                    mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                        holder.mProfilePictureView.setTag(facebookId);
+                                        mBitmapDownloader.queueUrl(holder, pictureUrl, new Size(width,height));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                        });
+                            });
 
-                Bundle parameters = new Bundle();
-                parameters.putString("fields", "name,picture");
-                request.setParameters(parameters);
-                request.executeAsync();
+                    Bundle parameters = new Bundle();
+                    parameters.putString("fields", "name,picture");
+                    request.setParameters(parameters);
+                    request.executeAsync();
+                } else {
+                    holder.mProfilePictureView.setImageBitmap(image);
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -215,6 +257,8 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         @Override
         public void onBitmapDownloaded(ViewHolder holder, Bitmap image) {
+            String facebookId = String.valueOf(holder.mProfilePictureView.getTag());
+            addBitmapToMemoryCache(facebookId, image);
             holder.mProfilePictureView.setImageBitmap(image);
         }
 

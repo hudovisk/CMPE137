@@ -89,7 +89,7 @@ public class SearchableActivity extends AppCompatActivity implements SearchView.
 
         mProgressDialog = new ProgressDialog(SearchableActivity.this, R.style.AppTheme_Dialog);
         mProgressDialog.setIndeterminate(true);
-        mProgressDialog.setMessage(getString(R.string.login_progress));
+        mProgressDialog.setMessage(getString(R.string.send_progress));
 
         Intent intent = getIntent();
         handleIntent(intent);
