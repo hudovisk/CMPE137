@@ -166,14 +166,6 @@ public class AlbumDetailActivity extends AppCompatActivity {
         return super.onNavigateUp();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d("CMPE137", "onStop");
-
-        mAdapter.clear();
-    }
-
     private class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder> {
 
         private List<Photo> mPhotos;

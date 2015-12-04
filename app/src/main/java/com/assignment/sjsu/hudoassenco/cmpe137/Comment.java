@@ -10,8 +10,26 @@ import com.parse.ParseUser;
 @ParseClassName("Comment")
 public class Comment extends ParseObject {
 
+    public void setAuthor(ParseUser user) {
+        put("author", user);
+    }
     public ParseUser getAuthor() {
         return getParseUser("author");
+    }
+
+    public void setText(String text) {
+        put("text", text);
+    }
+
+    public String getText() {
+        return getString("text");
+    }
+
+    public void setPhoto(Photo photo) {
+        put("originPhoto", photo);
+    }
+    public Photo getPhoto() {
+        return (Photo) get("originPhoto");
     }
 
 }
