@@ -66,6 +66,18 @@ public class AlbumDetailActivity extends AppCompatActivity {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
+                case R.id.delete_photo_action:
+                    List<Photo> selectedPhotos = new ArrayList<>();
+                    for(Integer position : mAdapter.getSelectedPositions()) {
+                        selectedPhotos.add(mAdapter.getPhotos().get(position));
+                    }
+                    for(final Photo photo : selectedPhotos) {
+                        //TODO: Remove photo
+                    }
+                    mAdapter.getPhotos().removeAll(selectedPhotos);
+                    mAdapter.notifyDataSetChanged();
+                    mActionMode.finish();
+                    return true;
                 default:
                     return false;
             }
