@@ -7,6 +7,9 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".PhotoDetailActivity">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="vertical"
@@ -47,10 +50,12 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/photo_detail_comments_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="300dp"/>
 
         </LinearLayout>
 
+
+    </ScrollView>
 
     <!--<android.support.design.widget.FloatingActionButton-->
         <!--android:id="@+id/fab"-->
