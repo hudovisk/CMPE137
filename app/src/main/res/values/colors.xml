@@ -3,7 +3,7 @@
     <color name="colorPrimary">#0d5e96</color>
     <color name="colorPrimaryDark">#167fc6</color>
     <color name="colorAccent">#F44336</color>
-
+    <color name="signUpColorMessage">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
 
     <color name="facebook_bg">#3b5998</color>
