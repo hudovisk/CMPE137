@@ -1,6 +1,7 @@
 package com.assignment.sjsu.hudoassenco.cmpe137;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +54,9 @@ public class NewAlbumActivity extends AppCompatActivity {
     private ArrayList<String> mCollaboratorsSuggestionsId;
     private ArrayList<String> mCollaboratorsSuggestionsPictureUrl;
     private ArrayList<CollaboratorsAdapter.Collaborator> mCollaborators;
+
+    private boolean mNewAlbum;
+    private Album mAlbumToEdit;
 
     public NewAlbumActivity() {
         mCollaboratorsSuggestions = new ArrayList<>();
@@ -119,6 +123,10 @@ public class NewAlbumActivity extends AppCompatActivity {
         mCollaboratorsListView.setLayoutManager(mLayoutManager);
         mCollaboratorsListView.setAdapter(mAdapter);
 
+        Intent intent = getIntent();
+        handleIntent(intent);
+
+
         mAddCollaboratorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,6 +165,35 @@ public class NewAlbumActivity extends AppCompatActivity {
         request.executeAsync();
     }
 
+    private void handleIntent(Intent intent) {
+        if (intent.getStringExtra("id").length()!=0){
+            // Edit album activity
+            mNewAlbum = false;
+            getSupportActionBar().setTitle("Edit Album");
+
+            String albumId = intent.getStringExtra("id");
+            ParseQuery<Album> query = ParseQuery.getQuery(Album.class);
+            query.whereEqualTo("objectId", albumId);
+            query.findInBackground(new FindCallback<Album>() {
+                public void done(List<Album> albums, ParseException e) {
+                    if (e == null) {
+                        mAlbumToEdit = albums.get(0);
+                        mAlbumNameView.setText(albums.get(0).getName());
+                        mAlbumDescription.setText(albums.get(0).getDescription());
+                    } else {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+
+
+        }else{
+            // New Album activity
+            mNewAlbum = true;
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -169,50 +206,66 @@ public class NewAlbumActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_album_action: {
-                //TODO: Save album here
-                final Album album = new Album();
-                final ParseRelation <ParseUser> relation = album.getRelation("collaborators");
+                if(mNewAlbum) {
+                    //TODO: Save album here
+                    final Album album = new Album();
+                    final ParseRelation<ParseUser> relation = album.getRelation("collaborators");
 
-                for(int i=0; i<mCollaborators.size();i++){
-                    String facebookId = mCollaborators.get(i).mId;
+                    for (int i = 0; i < mCollaborators.size(); i++) {
+                        String facebookId = mCollaborators.get(i).mId;
 
-                    ParseQuery<ParseUser> query = ParseUser.getQuery();
-                    query.whereEqualTo("facebookId", facebookId);
-                    query.findInBackground(new FindCallback<ParseUser>() {
-                        public void done(List<ParseUser> objects, ParseException e) {
-                            if (e == null) {
-                                // The query was successful.
-                                relation.add(objects.get(0));
-                                album.incrementNumberOfCollaborators();
-                                album.saveInBackground();
+                        ParseQuery<ParseUser> query = ParseUser.getQuery();
+                        query.whereEqualTo("facebookId", facebookId);
+                        query.findInBackground(new FindCallback<ParseUser>() {
+                            public void done(List<ParseUser> objects, ParseException e) {
+                                if (e == null) {
+                                    // The query was successful.
+                                    relation.add(objects.get(0));
+                                    album.incrementNumberOfCollaborators();
+                                    album.saveInBackground();
 
-                            } else {
-                                // Something went wrong.
+                                } else {
+                                    // Something went wrong.
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+
+                    album.setAuthor(ParseUser.getCurrentUser());
+                    album.setName(mAlbumNameView.getText().toString());
+                    album.setDescription(mAlbumDescription.getText().toString());
+                    album.saveInBackground();
+
+                    //create new feed
+
+                    Feed feed = new Feed();
+                    feed.setAuthor(ParseUser.getCurrentUser());
+                    feed.setAlbum(album);
+                    feed.saveInBackground();
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "New Album Created";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    finish();
+                    return true;
+                }else{
+                    mAlbumToEdit.setName(mAlbumNameView.getText().toString());
+                    mAlbumToEdit.setDescription(mAlbumDescription.getText().toString());
+                    mAlbumToEdit.saveInBackground();
+
+                    Context context = getApplicationContext();
+                    CharSequence text = "New Album Created";
+                    int duration = Toast.LENGTH_SHORT;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                    finish();
+                    return true;
+
                 }
-
-                album.setAuthor(ParseUser.getCurrentUser());
-                album.setName(mAlbumNameView.getText().toString());
-                album.setDescription(mAlbumDescription.getText().toString());
-                album.saveInBackground();
-
-                //create new feed
-
-                Feed feed = new Feed();
-                feed.setAuthor(ParseUser.getCurrentUser());
-                feed.setAlbum(album);
-                feed.saveInBackground();
-
-                Context context = getApplicationContext();
-                CharSequence text = "New Album Created";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
-                finish();
-                return true;
             }
             default:
                 return super.onOptionsItemSelected(item);

@@ -121,6 +121,15 @@ public class AlbumsFragment extends Fragment {
                     mAdapter.notifyDataSetChanged();
                     mActionMode.finish();
                     return true;
+                case R.id.edit_album_action:
+                    Intent intent = new Intent(getContext(), NewAlbumActivity.class);
+                    Album album = new Album();
+                    int position = mAdapter.getSelectedPositions().get(0);
+                    album = mAdapter.getAlbums().get(position);
+                    intent.putExtra("id", album.getObjectId());
+                    startActivity(intent);
+
+                    return true;
                 default:
                     return false;
             }
